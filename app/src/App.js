@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { LogContext } from './components/LogContext';
 import WikipediaExplorer from './components/WikipediaExplorer';
 
+
 function App() {
   const userAgent = navigator.userAgent;
   const [logEntries, setLogEntries] = useState([]);
