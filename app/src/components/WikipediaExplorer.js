@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useContext } from 'react';
 import { testContent } from './helpers';
 import { useAnimation, motion, transform } from "framer-motion"
 import PageViewer from './PageViewer';
+//import axios from 'axios';
 
 var style = document.createElement('style');
 
@@ -67,10 +68,13 @@ const clearedScrollbar = `
 `
 
 function WikipediaExplorer(props) {
-  const [selectedLink, setSelectedLink] = useState("");
+  const [selectedLink, setSelectedLink] = useState(null);
+  const [cockedState, setCockedState] = useState('dormant'); // dormant, partial, cocked
+  const [goToNewPage, setGoToNewPage] = useState(false);
+  const [preloadedPage, setPreloadedPage] = useState(false);
+  
   const [selectMode, setSelectMode] = useState('dormant'); // dormant, active, selected
   const [coords, setCoords] = useState(null);
-  const [cockedState, setCockedState] = useState('dormant'); // dormant, partial, cocked
   const [content, setContent] = useState([]);
   const [curPage, setCurPage] = useState(-1);
 
@@ -91,22 +95,21 @@ function WikipediaExplorer(props) {
     },
     partial: {
       translateX: -40,
-      rotate: -5,
+      rotate: -1,
       transition: { duration: 0.1, ease: 'easeInOut' }
     },
     cocked: {
       translateX: -40,
-      rotate: 5,
+      rotate: 1,
       transition: { duration: 0.1, ease: 'easeInOut' }
     },
   }
 
   function addPage(pageContent) {
-    const newContent = content;
+    const newContent = [...content];
     newContent.push(pageContent);
     setContent(newContent);
     setCurPage(curPage + 1)
-    //if (curPage > 0) scrollLeft()
   }
 
   const scrollLeft = () => {
@@ -146,7 +149,7 @@ function WikipediaExplorer(props) {
 
     setSelectMode('active');
     elementSelectedRef.current = false;
-    anchor_x.current = e.detail.x;
+    if (anchor_x.current < -1) anchor_x.current = e.detail.x;
     
     if (selectables.current.length > 0) {
       selectables.current.forEach(selectable => {
@@ -233,12 +236,7 @@ function WikipediaExplorer(props) {
   function handleOpenPalmRelease(e) {
     console.log('handleOpenPalmRelease')
 
-    props.unsubscribe("Hand_Coords", handleGestureXY);
-    props.unsubscribe("Closed_Fist", handleClosedFist);
-    props.unsubscribe("Hand_Coords", handleDetectCocking);
-    props.unsubscribe("Open_Palm", handleOpenPalm);
-    addPage("THIS IS A TEST PAGE");
-    scrollLeft();
+    setGoToNewPage(true);    
   }
 
   function handleNoGesture() { 
@@ -261,7 +259,7 @@ function WikipediaExplorer(props) {
   function handleGestureXY(e) {
     //console.log('handleGestureXY')
 
-    if (!elementSelectedRef.current) {
+    if (!elementSelectedRef.current && selectables.current.length > 0) {
       selectables.current[index.current].unhighlight();
       selectables.current[index.current].untrigger();
       
@@ -298,7 +296,7 @@ function WikipediaExplorer(props) {
         const rect = selectables.current[index.current].element.getBoundingClientRect();
         const x = rect.left - 8;
         const y = rect.top - 4;
-        setSelectedLink(selectables.current[index.current].element.innerHTML);
+        setSelectedLink(selectables.current[index.current]);
         setCoords({ x, y });
 
         // Set anchor point for cocking gesture
@@ -315,17 +313,76 @@ function WikipediaExplorer(props) {
     props.unsubscribe("Hand_Coords", handleDetectCocking);
   }
 
+
+  // Wikipedia functions
+
+  const fetchSummary = async(pageName) => {
+    try {
+      const response = await fetch(
+        `https://en.wikipedia.org/w/api.php?action=parse&page=${pageName}&format=json&origin=*`
+      );
+
+      if (!response.ok) throw new Error(`Error fetching data: ${response.statusText}`);
+    
+      const data = await response.json();
+      let truncatedText = data.parse.text["*"].split("References")[0];
+
+      return {
+        title: data.parse.title,
+        text: truncatedText
+      };
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
   useEffect(() => {
     props.subscribe("Open_Palm", (e) => handleOpenPalm(e));
     props.subscribe("No_Gesture", handleNoGesture);
 
-    addPage(testContent);
+    async function initializeApp() {
+      const initPage = await fetchSummary('Dymaxion');
+      console.log('initPage', initPage)
+      addPage(initPage);
+    }
+    
+    initializeApp();
   }, []);
 
   useEffect(() => {
     cockedStateRef.current = cockedState
     console.log('cockedStateRef.current', cockedStateRef.current)
   }, [cockedState]);
+
+  useEffect(() => {
+    if (cockedState !== 'dormant') {
+      console.log("Pre-load next page...")
+    
+      async function getPage(pageName) {
+        const initPage = await fetchSummary(pageName);
+        console.log('initPage', initPage)
+        addPage(initPage);
+      }
+      
+      const url = selectedLink.element.href;
+      const pageName = url.split('/').pop();
+      getPage(pageName);
+    }
+  }, [selectedLink, cockedState]);
+
+  useEffect(() => {
+    if (cockedState !== 'dormant' && goToNewPage) {
+      console.log('------- selectedLink', selectedLink)
+      props.unsubscribe("Hand_Coords", handleGestureXY);
+      props.unsubscribe("Closed_Fist", handleClosedFist);
+      props.unsubscribe("Hand_Coords", handleDetectCocking);
+      props.unsubscribe("Open_Palm", handleOpenPalmRelease);
+
+      setGoToNewPage(false);
+      addPage(preloadedPage);
+      scrollLeft();
+    }
+  }, [selectedLink, cockedState, goToNewPage]);
 
   
   return (
@@ -358,7 +415,7 @@ function WikipediaExplorer(props) {
         paddingLeft: '12px',
         paddingRight: '12px',
         boxShadow: '0px 0px 10px 0px #666',
-        }}>{selectedLink}</motion.div>}
+        }}>{selectedLink.element.innerHTML}</motion.div>}
 
     </>
   );

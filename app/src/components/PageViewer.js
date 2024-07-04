@@ -12,10 +12,11 @@ function PageViewer(props) {
 
   return (
    
-    <div style={{display:"flex", flexDirection:"row",}}>
+    <div style={{
+      display:"flex", flexDirection:"row", justifyContent:"center",}}>
       
       <div style={{
-        marginLeft:"120px",
+        
         marginBottom:"40px", 
         background:"none",
         width:"580px",
@@ -26,11 +27,11 @@ function PageViewer(props) {
         opacity: props.coords ? 0.3 : 1,
       }}>
         <motion.div animate={props.controls}
-          style={{display:"flex", flexDirection:"row", width:"1200px"}}>
-          
-          
-          <Page content={props.content[props.curPage]} />
-          <div style={{width:"20px"}}>HELLO</div>
+          style={{display:"flex", flexDirection:"row", width: props.content.length * 600 }}>
+           
+          {props.content.map((pageContent, index) => (
+            <Page key={"page_"+index} content={pageContent} />
+          ))}
         </motion.div>
       </div>
       <div style={{marginLeft:"12px", 

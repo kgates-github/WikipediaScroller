@@ -5,7 +5,6 @@ import React, { useState } from 'react';
 import { LogContext } from './components/LogContext';
 import WikipediaExplorer from './components/WikipediaExplorer';
 
-
 function App() {
   const userAgent = navigator.userAgent;
   const [logEntries, setLogEntries] = useState([]);
@@ -18,12 +17,12 @@ function App() {
 
   // Set up our custom gesture events
   const subscribe = (eventName, listener) => {
-    log('Subscribing to ' + eventName);
+    //console.log('Subscribing to ' + eventName);
     document.addEventListener(eventName, listener);
   }
   
   const unsubscribe = (eventName, listener) => {
-    log('Unsubscribing from ' + eventName);
+    //console.log('Unsubscribing from ' + eventName);
     document.removeEventListener(eventName, listener);
   }
   
