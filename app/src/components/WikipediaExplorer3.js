@@ -5,23 +5,23 @@ import WikipediaNavigator from '../utils/WikipediaNavigator';
 import TabBar from './TabBar';
 
 
-
 function WikipediaExplorer(props) {
   const [tab, setTab] = useState('browse');
-  const [curWikiPage, setCurWikiPage] = useState(null);
   const [navigator, setNavigator] = useState(null);
+  const [curWikiPage, setCurWikiPage] = useState(null);
+  const [wikiPages, setWikiPages] = useState([]);
 
   function toggleTab(tab) {
     setTab(tab);
   }
 
   useEffect(() => {
-    setNavigator(new WikipediaNavigator());
+    setNavigator(new WikipediaNavigator(setWikiPages));
   }, []);
 
   useEffect(() => {
-    // Capture all anchor clicks and prevent default behavior
     if (!navigator) return;
+     // Capture all anchor clicks and prevent default behavior
     document.addEventListener('click', function(event) {
       let target = event.target.closest('a');
 
@@ -31,13 +31,16 @@ function WikipediaExplorer(props) {
         setCurWikiPage(navigator.getCurPage());
       }
     });
+
+    navigator.addPageToQueue("Switzerland");
+    setCurWikiPage(navigator.getCurPage());
   }, [navigator]);
 
   return (
     <>
       <TabBar toggleTab={toggleTab} tab={tab} />
       {(tab === 'browse' && navigator) ? (
-        <PageViewer navigator={navigator} curWikiPage={curWikiPage}/>
+        <PageViewer navigator={navigator} curWikiPage={curWikiPage} wikiPages={wikiPages}/>
       ) : (
         <div>History</div>
       )}

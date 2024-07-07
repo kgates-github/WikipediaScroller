@@ -1,9 +1,9 @@
 class WikipediaNavigator {
-  constructor() {
+  constructor(setWikiPages) {
     this.pageQueue = [];
     this.queueIndex = -1;
-    this.count = 0
-    console.log('WikipediaNavigator constructor');
+    this.count = 0;
+    this.setWikiPages = setWikiPages;
   }
 
   addPageToQueue(wikiPage) {
@@ -14,10 +14,11 @@ class WikipediaNavigator {
       this.pageQueue = this.pageQueue.slice(0, this.queueIndex);
     }
     this.pageQueue.push({
-      title: wikiPage,
+      wikiPage: wikiPage,
+      title: wikiPage.replace(/_/g, ' '),
       id: `${wikiPage}_${this.count}`,
       url: `https://en.wikipedia.org/wiki/${wikiPage}`,
-      get: `https://en.wikipedia.org/w/api.php?action=parse&page=${wikiPage}&prop=text&format=json`,
+      api: `https://en.wikipedia.org/w/api.php?action=parse&page=${wikiPage}&prop=text&format=json`,
       summary: 'This is a summary',
     });
 
@@ -26,6 +27,8 @@ class WikipediaNavigator {
     console.log('-----------------')
     console.log('addPageToQueue', this.pageQueue);
     console.log('queueIndex', this.queueIndex);
+
+    this.setWikiPages(this.pageQueue);
   }
 
   getCurPage() {
@@ -44,40 +47,6 @@ class WikipediaNavigator {
     const wikiPage = href.split('/').pop();
     this.addPageToQueue(wikiPage);
   }
-
-  replacementFunction = (match, href) => {
-    if (href.includes('wiki')) {
-      return match;
-    } else {
-      return '';
-    }
-  };
-
-  fetchWikiPage = async(wikiPage) => {
-    try {
-      const pattern = /<a\s+[^>]*href=["'][^"']*?([^"']*wiki[^"']*|[^"'>]*)["'][^>]*>(.*?)<\/a>/gi;
-      const response = await fetch(
-        wikiPage.get
-      );
-
-      if (!response.ok) throw new Error(`Error fetching data: ${response.statusText}`);
-    
-      const data = await response.json();
-      let truncatedText = data.parse.text["*"].split("References")[0];
-      
-      // Apply the replacement function to the truncatedText
-      let cleanedText = truncatedText.replace(pattern, this.replacementFunction);
-      cleanedText = cleanedText.replace(/\[|\]/g, '');
-
-      return {
-        id: wikiPage.id,
-        title: data.parse.title,
-        text: cleanedText
-      };
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
 }
 
 export default WikipediaNavigator;

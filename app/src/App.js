@@ -37,12 +37,12 @@ function App() {
     <GlobalContext.Provider value={{GLOBAL_WIDTH}}>
     { (userAgent.indexOf("Chrome") > -1) ? 
       <div className="App">
-        <GestureCapturer 
+        {/*<GestureCapturer 
           publish={publish} 
           setIsLoaded={setIsLoaded} 
           introDisplay={introDisplay}
           setIntroDisplay={setIntroDisplay}
-        />
+        />*/}
         <div className="header" style={{position:"fixed", top:0, left:0}}>
           <div style={{flex:1}}></div>
           <div className="title">
@@ -50,7 +50,7 @@ function App() {
           </div>
           <div style={{flex:1}}></div>
         </div>
-        {isLoaded ? <WikipediaExplorer
+        {!isLoaded ? <WikipediaExplorer
           subscribe={subscribe} 
           unsubscribe={unsubscribe} 
           setIntroDisplay={setIntroDisplay}/>: null}
