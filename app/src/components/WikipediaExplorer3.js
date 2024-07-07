@@ -8,15 +8,18 @@ import TabBar from './TabBar';
 function WikipediaExplorer(props) {
   const [tab, setTab] = useState('browse');
   const [navigator, setNavigator] = useState(null);
-  const [curWikiPage, setCurWikiPage] = useState(null);
+  const [curIndex, setCurIndex] = useState(null);
   const [wikiPages, setWikiPages] = useState([]);
+  
+  const scroll_x = useRef(0);
+  const scrollXControls = useAnimation();
 
   function toggleTab(tab) {
     setTab(tab);
   }
 
   useEffect(() => {
-    setNavigator(new WikipediaNavigator(setWikiPages));
+    setNavigator(new WikipediaNavigator(setWikiPages, scroll_x, scrollXControls, setCurIndex));
   }, []);
 
   useEffect(() => {
@@ -28,19 +31,23 @@ function WikipediaExplorer(props) {
       if (target) {
         event.preventDefault();
         navigator.handleLinkClick(target.href)
-        setCurWikiPage(navigator.getCurPage());
       }
     });
 
-    navigator.addPageToQueue("Switzerland");
-    setCurWikiPage(navigator.getCurPage());
+    navigator.addPageToQueue("Dymaxion");
   }, [navigator]);
 
   return (
     <>
       <TabBar toggleTab={toggleTab} tab={tab} />
       {(tab === 'browse' && navigator) ? (
-        <PageViewer navigator={navigator} curWikiPage={curWikiPage} wikiPages={wikiPages}/>
+        <PageViewer 
+          navigator={navigator} 
+          curIndex={curIndex} 
+          wikiPages={wikiPages}
+          scroll_x={scroll_x}
+          scrollXControls={scrollXControls}
+        />
       ) : (
         <div>History</div>
       )}

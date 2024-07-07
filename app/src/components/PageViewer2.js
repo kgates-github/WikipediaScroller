@@ -17,9 +17,10 @@ function PageViewer(props) {
   } ,[props.wikiPages]);*/
 
   useEffect(() => {
+    console.log('PageViewer getBackButtonDisabled', props.navigator.getBackButtonDisabled())
     setBackButtonDisabled(props.navigator.getBackButtonDisabled());
     setForwardButtonDisabled(props.navigator.getForwardButtonDisabled());
-  } ,[props.curWikiPage]);
+  } ,[props.curIndex]);
 
   return (
    
@@ -33,38 +34,19 @@ function PageViewer(props) {
       <div style={{display:"flex", 
         flexDirection:"row", background:"none", width:`${GLOBAL_WIDTH.current}px`, paddingBottom:"12px"}}>
        
-       <div onClick={() => {props.scrollRight() }} style={{cursor:"pointer",}}>
+       <div onClick={() => { props.navigator.moveBack() }} style={{cursor:"pointer",}}>
           <i className="material-icons" style={{fontSize:"32px", color: backButtonDisabled ? "#ddd" : "#666"}}>arrow_circle_left</i>
         </div>
-        <div onClick={() => {props.scrollLeft() }} style={{cursor:"pointer",}}>
+        <div onClick={() => { props.navigator.moveForward() }} style={{cursor:"pointer",}}>
           <i className="material-icons" style={{fontSize:"32px", color: forwardButtonDisabled ? "#ddd" : "#666"}}>arrow_circle_right</i>
         </div>
         <div style={{flex:1, background:"none"}}></div>
-        <div onClick={() => {props.scrollLeft() }} 
+        <div onClick={() => { }} 
           style={{cursor:"pointer", display: "flex", alignItems: "center", marginRight:"20px"}}>
           <i className="material-icons" style={{fontSize:"32px", color:"#666"}}>search</i>
         </div>
       </div>
 
-      <div style={{background:"none", width:`${GLOBAL_WIDTH.current}px`, paddingBottom:"12px"}}>
-        <div>
-          <a href="https://en.wikipedia.org/wiki/Bauhause" target="_blank" rel="noreferrer">Bauhause</a>
-        </div>
-        <div>
-        <a href="https://en.wikipedia.org/wiki/Dymaxion" target="_blank" rel="noreferrer">Dymaxion</a>
-        </div>
-    
-        {(props.curWikiPage) ? (
-        <div style={{marginTop:"40px"}}>
-          <div>{props.curWikiPage.id}</div>
-          <div>{props.curWikiPage.title}</div>
-          <div>{props.curWikiPage.url}</div>
-          <div>{props.curWikiPage.get}</div>
-        </div>
-      ) : (
-        <div>No pages</div>
-      )}
-      </div>
       
       
       <div 
@@ -81,11 +63,11 @@ function PageViewer(props) {
           opacity: 1,
         }}
       >
-        <motion.div animate={props.controls}
-          style={{display:"flex", flexDirection:"row", width: props.wikiPages.length * 800 }}>
+        <motion.div animate={props.scrollXControls}
+          style={{display:"flex", flexDirection:"row", width: props.wikiPages.length * GLOBAL_WIDTH.current }}>
            
           {props.wikiPages.map((wikiPage, index) => (
-            <Page key={"page_"+index} navigator={props.navigator} wikiPage={wikiPage} doRender={true}/>
+            <Page key={"page_"+index} navigator={props.navigator} wikiPage={wikiPage} doRender={wikiPage.doRender}/>
           ))}
         </motion.div>
       </div>

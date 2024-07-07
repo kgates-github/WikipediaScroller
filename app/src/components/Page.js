@@ -3,7 +3,7 @@ import { motion } from "framer-motion"
 
 
 function Page(props) {
-  const [wikiPageBody, setWikiPageBody] = useState("");
+  const [HTMLContent, setHTMLConent] = useState({ __html: '' });
 
   const replacementFunction = (match, href) => {
     if (href.includes('wiki')) {
@@ -37,15 +37,25 @@ function Page(props) {
     }
   };
 
+  const isRendered = () => {
+    return HTMLContent && HTMLContent.__html && HTMLContent.__html.trim() !== '';
+  }
+
   useEffect(() => {
-    if (props.doRender) {
+    // Render the page if it hasn't been rendered yet abd doRender is true
+    if (props.doRender && !isRendered()) {
       async function fetchWiki() {
         const newWikiPageBody = await fetchWikiPage(props.wikiPage.wikiPage);
-        setWikiPageBody(newWikiPageBody);
+        setHTMLConent(
+          { __html: `
+            <div class="title-header"/>${props.wikiPage.title}</div>
+            ${newWikiPageBody}`  
+          }
+        );
       }
       fetchWiki();
     } else {
-      setWikiPageBody("");
+      setHTMLConent({ __html: '' });
     }
   }, [props.doRender]);
 
@@ -62,17 +72,20 @@ function Page(props) {
       background:"none", 
       opacity: props.coords ? 0.3 : 1,
     }} 
-    dangerouslySetInnerHTML={{
-       __html: props.doRender ? `
-        <div class="title-header"/>${props.wikiPage.title}</div>
-        ${wikiPageBody}` 
-        :
-        `<div class="title-header"/>${props.wikiPage.title}</div>`
-    }} />
+    dangerouslySetInnerHTML={HTMLContent} />
   );
 }
 
 export default Page;
+
+/*
+{
+       __html: props.doRender ? `
+        <div class="title-header"/>${props.wikiPage.title}</div>
+        ${wikiPageBody}` 
+        :
+        ""
+    }*/
 
 
 
