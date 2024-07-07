@@ -13,8 +13,10 @@ class WikipediaNavigator {
     this.count++;
 
     // If we are trying to add a page to the queue that is not the last page in the queue
+    console.log('this.queueIndex, this.pageQueue.length', this.queueIndex, this.pageQueue.length)
     if (this.queueIndex < this.pageQueue.length - 1) {
-      this.pageQueue = this.pageQueue.slice(0, this.queueIndex);
+      this.pageQueue = this.pageQueue.slice(0, this.queueIndex + 1);
+      console.log('this.pageQueue truncated', this.pageQueue)
     }
     this.pageQueue.push({
       wikiPage: wikiPage,
@@ -48,11 +50,12 @@ class WikipediaNavigator {
   setDoRender() {
     // Render the current page and the pages before and after it
     this.pageQueue.map((page, index) => {
-      page.doRender = index === this.queueIndex || index === this.queueIndex-1 || index === this.queueIndex+1;
+      page.doRender = index === this.queueIndex || index === this.queueIndex-1;
     })
   }
 
   moveForward() { 
+    console.log('moveForward', this.queueIndex, this.pageQueue.length)
     if (this.queueIndex === this.pageQueue.length - 1) return;
     this.queueIndex++;
 
