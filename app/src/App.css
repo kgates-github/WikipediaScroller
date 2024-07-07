@@ -1,26 +1,4 @@
 
-/* This applies to all scrollable elements */
-::-webkit-scrollbar {
-  width: 10px; /* width of the entire scrollbar */
-  opacity:0;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: #ffff; /* color of the tracking area */
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: #fff; /* color of the scroll thumb */
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: #fff; /* color of the scroll thumb on hover */
-}
-
-
 
 a:link {
   color: #0360f7;
@@ -79,6 +57,7 @@ a.triggered {
   top: 0px; left: 0px; 
   z-index: 20000;
 }
+
 .title {
   background-color: none; 
   font: 12px 'Source Sans Pro'; 
@@ -86,6 +65,24 @@ a.triggered {
   flex-direction: column; 
   justify-content: center; 
   align-items: center;
+}
+
+.mw-headline {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  color: #333;
+}
+
+.title-header {
+  font-family: 'Roboto', sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.0em;
+  color: #444;
+  border-bottom : 1px solid #ccc;
+  padding-bottom: 20px;
+  margin-bottom: 40px;
+  margin-top: 20px;
 }
 
 .outerContainer {
@@ -115,7 +112,7 @@ a.triggered {
 
 body {
   font-family: 'Source Sans Pro', sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   color: #444;
   overflow-y: hidden;
 }

@@ -4,68 +4,6 @@ import { useAnimation, motion, transform } from "framer-motion"
 import PageViewer from './PageViewer';
 //import axios from 'axios';
 
-var style = document.createElement('style');
-
-
-const activatedScrollbar = `
-  ::-webkit-scrollbar {
-    width: 10px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1; /* color of the tracking area */
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #999;
-    border: 3px solid #999;
-  }
-`
-const deactivatedScrollbar = `
-  ::-webkit-scrollbar {
-    width: 10px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #fff; /* color of the tracking area */
-  }
-`
-const highlightedScrollbar = `
-  ::-webkit-scrollbar {
-    background: #f1f1f1;
-    width: 10px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1; /* color of the tracking area */
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #777;
-    border: 2px solid #ffcc00;
-  }
-`
-const triggeredScrollbar = `
-  ::-webkit-scrollbar {
-    background: #f1f1f1;
-    width: 10px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1; /* color of the tracking area */
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #ffcc00;
-    border: 2px solid #ffcc00;
-  }
-`
-const clearedScrollbar = `
-  ::-webkit-scrollbar {
-    background: #fff;
-    width: 10px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #fff; /* color of the tracking area */
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #fff;
-    border: 4px solid #fff;
-  }
-`
 
 function WikipediaExplorer(props) {
   const [selectedLink, setSelectedLink] = useState(null);
@@ -73,11 +11,12 @@ function WikipediaExplorer(props) {
   const [goToNewPage, setGoToNewPage] = useState(false);
   const [clickedLink, setClickedLink] = useState(false);
   const [preloadedPage, setPreloadedPage] = useState(false);
+  const linkCount = useRef(0)
   
   const [selectMode, setSelectMode] = useState('dormant'); // dormant, active, selected
   const [coords, setCoords] = useState(null);
-  const [content, setContent] = useState([]);
-  const [curPage, setCurPage] = useState(-1);
+  const [wikiPages, setWikiPages] = useState([]);
+  const [curPageIndex, setCurPageIndex] = useState(0);
 
   const elementSelectedRef = useRef(false);
   const anchor_x = useRef(-10);
@@ -86,7 +25,7 @@ function WikipediaExplorer(props) {
   const index = useRef(0);
   const scroll_x = useRef(0);
   const cockedStateRef = useRef(cockedState)
-
+  
   const controls = useAnimation();
   
   const variants = {
@@ -107,14 +46,25 @@ function WikipediaExplorer(props) {
   }
 
   function addPage(pageContent) {
-    console.log('addPage', pageContent)
-    const newContent = [...content];
-    newContent.push(pageContent);
-    setContent(newContent);
-    setCurPage(curPage + 1)
+    
+    // Get curid and truncate all pages after it
+    const newWikiPages = [...wikiPages];
+    newWikiPages.push(pageContent);
+    setWikiPages(newWikiPages);
+    console.log('newWikiPages', newWikiPages)
+    //setCurPage(newWikiPage.id)
   }
 
   const scrollLeft = () => {
+    // Take curId and determine if it is at end, then don't scroll
+    //const index = wikiPages.findIndex(page => page.id === curPageId);
+    //console.log('-- scrollLeft index, curPageId', index, curPageId, wikiPages)
+   
+    //if (index === wikiPages.length-1) return;
+
+    // If wikiPages[curPageIndex + 1] exists, then scroll
+    setCurPageIndex(curPageIndex + 1)
+
     scroll_x.current -= 800;
     controls.start({ 
       x: scroll_x.current, 
@@ -126,6 +76,12 @@ function WikipediaExplorer(props) {
   };
 
   const scrollRight = () => {
+    // Take curId and determine if it is at end, then don't scroll (also set button opacity)
+    //const index = wikiPages.findIndex(page => page.id === curPageId);
+    //console.log('-- scrollRight index, curPageId', index, curPageId, wikiPages)
+    // if (index === 0) return;
+    setCurPageIndex(curPageIndex - 1)
+
     scroll_x.current += 800;
     controls.start({ 
       x: scroll_x.current, 
@@ -137,7 +93,7 @@ function WikipediaExplorer(props) {
   };
   
   function handleOpenPalm(e) {
-    console.log('handleOpenPalm', cockedStateRef.current)
+    /*console.log('handleOpenPalm', cockedStateRef.current)
     props.unsubscribe("Hand_Coords", handleDetectCocking);
 
     if (cockedStateRef.current == 'partial') {
@@ -160,41 +116,12 @@ function WikipediaExplorer(props) {
     }
 
     const windowHeight = window.innerHeight;
-    style.innerHTML = activatedScrollbar;
-    document.head.appendChild(style);
     
-    selectables.current = [];
-    selectables.current.push(
-      {
-        element:null, 
-        type:"scrollbar", 
-        highlight:() => {
-          style.innerHTML = highlightedScrollbar;
-          document.head.appendChild(style);
-        },
-        unhighlight:() => {
-          style.innerHTML = activatedScrollbar;
-          document.head.appendChild(style);
-        },
-        trigger:() => {
-          style.innerHTML = triggeredScrollbar;
-          document.head.appendChild(style);
-        },
-        untrigger:() => {
-          style.innerHTML = activatedScrollbar;
-          document.head.appendChild(style);
-        },
-        clear:() => {
-          style.innerHTML = clearedScrollbar;
-          document.head.appendChild(style);
-        }
-      }
-    ); // Scrollbar is special case
-
     const links = document.querySelectorAll('a');
     console.log('links length: ', links.length)
     links.forEach((link) => {
       if (link.offsetHeight < windowHeight) {
+        
         selectables.current.push({
           element:link,
           type:link.tagName,
@@ -233,7 +160,7 @@ function WikipediaExplorer(props) {
     selectables.current[index.current].highlight();
     props.unsubscribe("Hand_Coords", handleDetectCocking);
     props.subscribe("Hand_Coords", (e) => handleGestureXY(e));
-    props.subscribe("Closed_Fist", (e) => handleClosedFist(e));
+    props.subscribe("Closed_Fist", (e) => handleClosedFist(e));*/
   }
 
   function handleOpenPalmRelease(e) {
@@ -249,9 +176,7 @@ function WikipediaExplorer(props) {
     setSelectMode('dormant');
     setCockedState('dormant')
     anchor_x.current = -10; // Reset anchor
-    style.innerHTML = deactivatedScrollbar;
-    document.head.appendChild(style);
-
+    
     selectables.current.forEach(selectable => {
       selectable.clear();
     });
@@ -315,7 +240,6 @@ function WikipediaExplorer(props) {
     props.unsubscribe("Hand_Coords", handleDetectCocking);
   }
 
-
   // Wikipedia functions
   
   // Replacement function to decide whether to keep or remove the <a> tag
@@ -338,11 +262,15 @@ function WikipediaExplorer(props) {
     
       const data = await response.json();
       let truncatedText = data.parse.text["*"].split("References")[0];
+      
       // Apply the replacement function to the truncatedText
       let cleanedText = truncatedText.replace(pattern, replacementFunction);
       cleanedText = cleanedText.replace(/\[|\]/g, '');
+      linkCount.current++;
+      let newId = "page_" + linkCount.current;
 
       return {
+        id: newId,
         title: data.parse.title,
         text: cleanedText
       };
@@ -357,7 +285,6 @@ function WikipediaExplorer(props) {
     if (target) {
       event.preventDefault();
       setClickedLink(target.href)
-      console.log('Clicked on <a> tag with href:', target.href);
     }
   });
 
@@ -365,8 +292,8 @@ function WikipediaExplorer(props) {
     if (clickedLink) {
       async function getPage(pageName) {
         setClickedLink(null);
-        const newPage = await fetchWikiPage(pageName);
-        addPage(newPage);
+        const newWikiPage = await fetchWikiPage(pageName);
+        addPage(newWikiPage);
         scrollLeft();
       }
       
@@ -377,13 +304,13 @@ function WikipediaExplorer(props) {
   }, [clickedLink]);
 
   useEffect(() => {
-    props.subscribe("Open_Palm", (e) => handleOpenPalm(e));
-    props.subscribe("No_Gesture", handleNoGesture);
+    //props.subscribe("Open_Palm", (e) => handleOpenPalm(e));
+    //props.subscribe("No_Gesture", handleNoGesture);
 
     async function initializeApp() {
-      const initPage = await fetchWikiPage('Dymaxion');
-      console.log('initPage', initPage)
-      addPage(initPage);
+      const newWikiPage = await fetchWikiPage('Dymaxion');
+      setCurPageIndex(0)
+      addPage(newWikiPage);
     }
     
     initializeApp();
@@ -398,8 +325,8 @@ function WikipediaExplorer(props) {
     if (selectedLink && selectedLink.element && cockedState === 'partial') {
       
       async function getPage(pageName) {
-        const newPage = await fetchWikiPage(pageName);
-        setPreloadedPage(newPage);
+        const newWikiPage = await fetchWikiPage(pageName);
+        setPreloadedPage(newWikiPage);
       }
       
       const url = selectedLink.element.href;
@@ -422,7 +349,6 @@ function WikipediaExplorer(props) {
     }
   }, [selectedLink, cockedState, goToNewPage]);
 
-  
   return (
     <>
       <div style={{height:"60px", background:"none", marginTop:"40px"}}></div>
@@ -434,8 +360,7 @@ function WikipediaExplorer(props) {
         scrollRight={scrollRight}
         controls={controls}
         scroll_x={scroll_x}
-        content={content}
-        curPage={curPage}
+        wikiPages={wikiPages}
       />
       
       {/* Other components */}

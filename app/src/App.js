@@ -1,15 +1,16 @@
 import './App.css';
 import GestureCapturer from './components/GestureCapturer';
 import Log from './components/Log';
-import React, { useState } from 'react';
-import { LogContext } from './components/LogContext';
-import WikipediaExplorer from './components/WikipediaExplorer';
+import React, { useState, useRef } from 'react';
+import { GlobalContext } from './components/GlobalContext';
+import WikipediaExplorer from './components/WikipediaExplorer3';
 
 function App() {
   const userAgent = navigator.userAgent;
   const [logEntries, setLogEntries] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [introDisplay, setIntroDisplay] = useState('none');
+  const GLOBAL_WIDTH = useRef(800);
 
   const log = (entry) => {
     setLogEntries(prevEntries => [...prevEntries, entry]);
@@ -33,7 +34,7 @@ function App() {
   }
 
   return (
-    <LogContext.Provider value={log}>
+    <GlobalContext.Provider value={{GLOBAL_WIDTH}}>
     { (userAgent.indexOf("Chrome") > -1) ? 
       <div className="App">
         <GestureCapturer 
@@ -56,7 +57,7 @@ function App() {
         <Log entries={logEntries}/>
       </div>
      : <div style={{padding: "20px", textAlign:"center"}}>This app is only supported in Google Chrome</div> }
-    </LogContext.Provider>
+    </GlobalContext.Provider>
   );
 }
 
