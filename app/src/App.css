@@ -79,6 +79,7 @@ a.triggered {
   font-weight: 500;
   line-height: 1.0em;
   color: #444;
+  background:#fff;
   border-bottom : 1px solid #ccc;
   padding-bottom: 20px;
   margin-bottom: 40px;

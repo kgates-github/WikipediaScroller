@@ -49,7 +49,16 @@ function WikipediaExplorer(props) {
           scrollXControls={scrollXControls}
         />
       ) : (
-        <div>History</div>
+        (tab === 'history' && navigator) ? (
+          <div style={{display:'flex', alignItems:'center', flexDirection:"column", marginTop:"20px"}}>
+
+            <div style={{width:"600px", marginBottom:"20px"}}>
+              {navigator.getHistory().map((wikiPage, index) => (
+                <div key={"hist_"+index} style={{ marginTop:"16px"}}>{wikiPage.title}</div>
+              ))}
+            </div>
+          </div>
+        ) : null
       )}
     </>
   );

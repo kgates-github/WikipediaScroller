@@ -17,7 +17,6 @@ function PageViewer(props) {
   } ,[props.wikiPages]);*/
 
   useEffect(() => {
-    console.log('PageViewer getBackButtonDisabled', props.navigator.getBackButtonDisabled())
     setBackButtonDisabled(props.navigator.getBackButtonDisabled());
     setForwardButtonDisabled(props.navigator.getForwardButtonDisabled());
   } ,[props.curIndex]);
@@ -29,11 +28,11 @@ function PageViewer(props) {
       flexDirection:"column", 
       alignItems:"center", 
       paddingTop:"20px",
-      width:"100%"
+      width:"100%",
+      background:"white",
     }}>
       <div style={{display:"flex", 
         flexDirection:"row", background:"none", width:`${GLOBAL_WIDTH.current}px`, paddingBottom:"12px"}}>
-       
        <div onClick={() => { props.navigator.moveBack() }} style={{cursor:"pointer",}}>
           <i className="material-icons" style={{fontSize:"32px", color: backButtonDisabled ? "#ddd" : "#666"}}>arrow_circle_left</i>
         </div>
@@ -47,24 +46,28 @@ function PageViewer(props) {
         </div>
       </div>
 
-      
-      
       <div 
         id="page-viewer"
         ref={pageViewerRef}
         style={{
           marginBottom:"40px", 
           background:"none",
-          width:"780px",
+          width:"580px",
           height:"calc(100vh - 80px)",
-          overflowY:"hidden",
-          overflowX:"hidden",
+          overflowY:"visible",
+          overflowX:"visible",
           paddingRight:"20px",
           opacity: 1,
         }}
       >
-        <motion.div animate={props.scrollXControls}
-          style={{display:"flex", flexDirection:"row", width: props.wikiPages.length * GLOBAL_WIDTH.current }}>
+        <motion.div 
+          animate={props.scrollXControls}
+          style={{
+            display:"flex", 
+            flexDirection:"row", 
+            background:"none",
+            width: props.wikiPages.length * GLOBAL_WIDTH.current 
+          }}>
            
           {props.wikiPages.map((wikiPage, index) => (
             <Page key={"page_"+index} navigator={props.navigator} wikiPage={wikiPage} doRender={wikiPage.doRender}/>

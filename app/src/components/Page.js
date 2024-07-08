@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion } from "framer-motion"
 
 
 function Page(props) {
   const [HTMLContent, setHTMLConent] = useState({ __html: '' });
+  const motionDivRef = useRef(null); // 
 
   const replacementFunction = (match, href) => {
     if (href.includes('wiki')) {
@@ -13,8 +14,19 @@ function Page(props) {
     }
   };
 
+  const fetchWikiSummary = async(wikiPage) => {
+    const response = await fetch(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${wikiPage}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error fetching data: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+  }
+
   const fetchWikiPage = async(wikiPage) => {
-    console.log('fetchWikiPage', wikiPage);
     try {
       const pattern = /<a\s+[^>]*href=["'][^"']*?([^"']*wiki[^"']*|[^"'>]*)["'][^>]*>(.*?)<\/a>/gi;
     
@@ -26,12 +38,16 @@ function Page(props) {
     
       const data = await response.json();
       let truncatedText = data.parse.text["*"].split("References")[0];
+      const title = data.parse.title;
       
       // Apply the replacement function to the truncatedText
       let cleanedText = truncatedText.replace(pattern, replacementFunction);
       cleanedText = cleanedText.replace(/\[|\]/g, '');
 
-      return cleanedText;
+      return {
+        title: title,
+        text: cleanedText
+      }
     } catch (error) {
       console.log(error.message);
     }
@@ -42,14 +58,16 @@ function Page(props) {
   }
 
   useEffect(() => {
-    // Render the page if it hasn't been rendered yet abd doRender is true
-    if (props.doRender && !isRendered()) {
-      async function fetchWiki() {
-        const newWikiPageBody = await fetchWikiPage(props.wikiPage.wikiPage);
+  
+    if (props.doRender && (!isRendered() || 
+      props.wikiPage.prevWikiPage != props.wikiPage.wikiPage)) {
+      
+          async function fetchWiki() {
+        const newWikiPage = await fetchWikiPage(props.wikiPage.wikiPage);
         setHTMLConent(
           { __html: `
-            <div class="title-header"/>${props.wikiPage.title}</div>
-            ${newWikiPageBody}`  
+            <div class="title-header">${newWikiPage.title}</div>
+            ${newWikiPage.text}`  
           }
         );
       }
@@ -57,20 +75,22 @@ function Page(props) {
     } else {
       setHTMLConent({ __html: '' });
     }
-  }, [props.doRender]);
+  }, [props.doRender, props.wikiPage.wikiPage]);
 
   return (
    <motion.div 
+    ref={motionDivRef} 
     id={props.wikiPage.id}
     style={{
       lineHeight:"1.6em",
-      width:"800px", 
+      width:"600px", 
       marginRight:"20px", 
       height:"calc(100vh - 80px)", 
       overflowY:"scroll", 
       overflowX:"hidden", 
       background:"none", 
-      opacity: props.coords ? 0.3 : 1,
+      opacity: props.wikiPage.isCurPage ? 1 : 0.4,
+      filter: !props.wikiPage.isCurPage ? "grayscale(100%)" : "none",
     }} 
     dangerouslySetInnerHTML={HTMLContent} />
   );
@@ -80,12 +100,8 @@ export default Page;
 
 /*
 {
-       __html: props.doRender ? `
-        <div class="title-header"/>${props.wikiPage.title}</div>
-        ${wikiPageBody}` 
-        :
-        ""
-    }*/
+    "<p>The <b>Old Swiss Confederacy</b>, also known as <b>Switzerland</b> or the <b>Swiss Confederacy</b>, was a loose confederation of independent small states, initially within the Holy Roman Empire. It is the precursor of the modern state of Switzerland.</p>"
+}*/
 
 
 

@@ -7,27 +7,31 @@ class WikipediaNavigator {
     this.scroll_x = scroll_x;
     this.scrollXControls = scrollXControls;
     this.setCurIndex = setCurIndex;
+    this.history = [];
   }
 
   addPageToQueue(wikiPage) {
     this.count++;
 
     // If we are trying to add a page to the queue that is not the last page in the queue
-    console.log('this.queueIndex, this.pageQueue.length', this.queueIndex, this.pageQueue.length)
     if (this.queueIndex < this.pageQueue.length - 1) {
       this.pageQueue = this.pageQueue.slice(0, this.queueIndex + 1);
-      console.log('this.pageQueue truncated', this.pageQueue)
     }
-    this.pageQueue.push({
+
+    const newPage = {
       wikiPage: wikiPage,
+      prevWikiPage: this.pageQueue[this.queueIndex] ? this.pageQueue[this.queueIndex].wikiPage : null,
       title: wikiPage.replace(/_/g, ' '),
       id: `${wikiPage}_${this.count}`,
       doRender: true,
+      isCurPage: false,
       url: `https://en.wikipedia.org/wiki/${wikiPage}`,
       api: `https://en.wikipedia.org/w/api.php?action=parse&page=${wikiPage}&prop=text&format=json`,
       summary: 'This is a summary',
-    });
+    }
 
+    this.pageQueue.push(newPage);
+    this.history.push(newPage);
 
     // If we only have one page, render it
     if (this.pageQueue.length === 1) {
@@ -39,31 +43,29 @@ class WikipediaNavigator {
     }
 
     this.setWikiPages(this.pageQueue);
-    this.moveForward();
-
-    console.log('-------------')
-    console.log('addPageToQueue', this.pageQueue);
-    console.log('queueIndex', this.queueIndex);
-    console.log('-------------')
+    this.moveForward(false);
   }
 
-  setDoRender() {
+  setDoRender(renderNextPage = true) {
     // Render the current page and the pages before and after it
     this.pageQueue.map((page, index) => {
-      page.doRender = index === this.queueIndex || index === this.queueIndex-1;
+      page.doRender = index === this.queueIndex || 
+        index === this.queueIndex-1 || 
+        (index === this.queueIndex + 1 && renderNextPage);
+      page.isCurPage = index === this.queueIndex;
     })
+    console.log('--- this.pageQueue', this.pageQueue)
   }
 
-  moveForward() { 
-    console.log('moveForward', this.queueIndex, this.pageQueue.length)
+  moveForward(renderNextPage = true) { 
     if (this.queueIndex === this.pageQueue.length - 1) return;
     this.queueIndex++;
 
     this.setCurIndex(this.queueIndex) 
-    this.setDoRender();
+    this.setDoRender(renderNextPage); // MAYBE PASS VALUE TO SET DO RENDER - has new page been added?
     this.setWikiPages(this.pageQueue);
     
-    this.scroll_x.current -= 800;
+    this.scroll_x.current -= 600;
     this.scrollXControls.start({ 
       x: this.scroll_x.current, 
       transition: { 
@@ -81,7 +83,7 @@ class WikipediaNavigator {
     this.setDoRender();
     this.setWikiPages(this.pageQueue);
 
-    this.scroll_x.current += 800;
+    this.scroll_x.current += 600;
     this.scrollXControls.start({ 
       x: this.scroll_x.current, 
       transition: { 
@@ -93,6 +95,10 @@ class WikipediaNavigator {
 
   getCurPage() {
     return this.pageQueue[this.queueIndex];
+  }
+
+  getHistory() {
+    return this.history;
   }
 
   getBackButtonDisabled() {
@@ -110,28 +116,3 @@ class WikipediaNavigator {
 }
 
 export default WikipediaNavigator;
-
-/*
-
-Create wikiPage for pageQueue
-{
-  title: 'Main Page',
-  id: 'Main_Page_0',
-  url: 'https://en.wikipedia.org/wiki/Main_Page',
-  get: 'https://en.wikipedia.org/w/api.php?action=parse&page=Main_Page&prop=text&format=json',
-  summary: 'Main Page',
-}
-Set queueIndex to 0
-Set curPage to wikiPage at queueIndex (which renders the new page)
-
-CLICK LINK
-  If queueIndex < length of pageQueue, truncate pageQueue (let truncatedArray = originalArray.slice(0, 3))
-  Remove all pages before queueIndex - 1 (memory management)
-  Add wikiPage to pageQueue
-  Set queueIndex to queueIndex + 1
-  Set curPage to wikiPage at queueIndex (which renders the new page)
-  Scroll left to show the new page
-
-
-
-*/

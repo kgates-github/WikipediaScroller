@@ -10,7 +10,7 @@ function App() {
   const [logEntries, setLogEntries] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [introDisplay, setIntroDisplay] = useState('none');
-  const GLOBAL_WIDTH = useRef(800);
+  const GLOBAL_WIDTH = useRef(600);
 
   const log = (entry) => {
     setLogEntries(prevEntries => [...prevEntries, entry]);
