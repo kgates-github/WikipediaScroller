@@ -4,7 +4,7 @@ import { motion } from "framer-motion"
 
 function Page(props) {
   const [HTMLContent, setHTMLConent] = useState({ __html: '' });
-  const motionDivRef = useRef(null); // 
+  const pageDivRef = useRef(null); 
 
   const replacementFunction = (match, href) => {
     if (href.includes('wiki')) {
@@ -58,11 +58,10 @@ function Page(props) {
   }
 
   useEffect(() => {
-  
     if (props.doRender && (!isRendered() || 
       props.wikiPage.prevWikiPage != props.wikiPage.wikiPage)) {
       
-          async function fetchWiki() {
+      async function fetchWiki() {
         const newWikiPage = await fetchWikiPage(props.wikiPage.wikiPage);
         setHTMLConent(
           { __html: `
@@ -77,19 +76,24 @@ function Page(props) {
     }
   }, [props.doRender, props.wikiPage.wikiPage]);
 
+
+  
+
   return (
    <motion.div 
-    ref={motionDivRef} 
+    ref={pageDivRef} 
     id={props.wikiPage.id}
     style={{
       lineHeight:"1.6em",
       width:"600px", 
-      marginRight:"20px", 
+      paddingRight:"20px",
+      paddingLeft:"20px", 
+      //border: "1px solid #ccc",
       height:"calc(100vh - 80px)", 
       overflowY:"scroll", 
       overflowX:"hidden", 
       background:"none", 
-      opacity: props.wikiPage.isCurPage ? 1 : 0.4,
+      //opacity: props.wikiPage.isCurPage ? 1 : 0.3,
       filter: !props.wikiPage.isCurPage ? "grayscale(100%)" : "none",
     }} 
     dangerouslySetInnerHTML={HTMLContent} />

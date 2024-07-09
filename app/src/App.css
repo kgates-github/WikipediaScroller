@@ -80,9 +80,9 @@ a.triggered {
   line-height: 1.0em;
   color: #444;
   background:#fff;
-  border-bottom : 1px solid #ccc;
+  /*border-bottom : 1px solid #ccc;*/
   padding-bottom: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   margin-top: 20px;
 }
 
@@ -116,6 +116,9 @@ body {
   font-size: 14px;
   color: #444;
   overflow-y: hidden;
+  overflow-x: hidden;
+  position: fixed; /* Add this line */
+  width: 100%;
 }
 
 #webcamButton {

@@ -43,10 +43,16 @@ function App() {
           introDisplay={introDisplay}
           setIntroDisplay={setIntroDisplay}
         />*/}
-        <div className="header" style={{position:"fixed", top:0, left:0}}>
+        <div className="header" style={{position:"fixed", top:0, left:0,}}>
+        
+          <div style={{display:"flex", flexDirection:"row", alignItems:"center",}}>
+            <i className="material-icons-outlined" style={{fontSize:"20px", color: "#666"}}>keyboard_arrow_left</i>
+            <div className="header-06">Projects</div>
+          </div>
+          
           <div style={{flex:1}}></div>
           <div className="title">
-            <div className="header-06">Gestures IV</div>
+            <div className="header-06">Wikipedia Explorer</div>
           </div>
           <div style={{flex:1}}></div>
         </div>
@@ -54,7 +60,7 @@ function App() {
           subscribe={subscribe} 
           unsubscribe={unsubscribe} 
           setIntroDisplay={setIntroDisplay}/>: null}
-        <Log entries={logEntries}/>
+        {/*<Log entries={logEntries}/>*/}
       </div>
      : <div style={{padding: "20px", textAlign:"center"}}>This app is only supported in Google Chrome</div> }
     </GlobalContext.Provider>

@@ -8,7 +8,7 @@ function TabBar(props) {
   return (
     <>
       <div style={{
-        height:"60px", 
+        height:"40px", 
         background:"none", 
         marginTop:"40px", 
         display:"flex", 

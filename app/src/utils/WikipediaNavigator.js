@@ -50,11 +50,12 @@ class WikipediaNavigator {
     // Render the current page and the pages before and after it
     this.pageQueue.map((page, index) => {
       page.doRender = index === this.queueIndex || 
-        index === this.queueIndex-1 || 
-        (index === this.queueIndex + 1 && renderNextPage);
+        index === this.queueIndex - 2 || 
+        index === this.queueIndex - 1 || 
+        (index === this.queueIndex + 1 && renderNextPage) ||
+        (index === this.queueIndex + 2 && renderNextPage);
       page.isCurPage = index === this.queueIndex;
-    })
-    console.log('--- this.pageQueue', this.pageQueue)
+    });
   }
 
   moveForward(renderNextPage = true) { 
