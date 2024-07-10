@@ -1,20 +1,14 @@
 import './App.css';
 import GestureCapturer from './components/GestureCapturer';
-import Log from './components/Log';
 import React, { useState, useRef } from 'react';
 import { GlobalContext } from './components/GlobalContext';
 import WikipediaExplorer from './components/WikipediaExplorer3';
 
 function App() {
   const userAgent = navigator.userAgent;
-  const [logEntries, setLogEntries] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [introDisplay, setIntroDisplay] = useState('none');
   const GLOBAL_WIDTH = useRef(600);
-
-  const log = (entry) => {
-    setLogEntries(prevEntries => [...prevEntries, entry]);
-  }
 
   // Set up our custom gesture events
   const subscribe = (eventName, listener) => {
@@ -35,16 +29,61 @@ function App() {
 
   return (
     <GlobalContext.Provider value={{GLOBAL_WIDTH}}>
-    { (userAgent.indexOf("Chrome") > -1) ? 
+      
+    
+      { (userAgent.indexOf("Chrome") > -1) ? 
       <div className="App">
-        {/*<GestureCapturer 
+        <GestureCapturer 
           publish={publish} 
           setIsLoaded={setIsLoaded} 
           introDisplay={introDisplay}
           setIntroDisplay={setIntroDisplay}
-        />*/}
+        />
         <div className="header" style={{position:"fixed", top:0, left:0,}}>
-        
+          <div style={{display:"flex", flexDirection:"row", alignItems:"center", width:"200px", background:"none"}}>
+            <i className="material-icons-outlined" style={{fontSize:"20px", color: "#666"}}>keyboard_arrow_left</i>
+            <div className="header-06">Projects</div>
+          </div>
+          
+          <div style={{flex:1}}></div>
+          <div className="title">
+            <div className="header-06">Wikipedia Browser</div>
+          </div>
+          <div style={{flex:1}}></div>
+          <div style={{width:"200px"}}></div>
+        </div>
+        {isLoaded ? <WikipediaExplorer
+          subscribe={subscribe} 
+          unsubscribe={unsubscribe} 
+          setIntroDisplay={setIntroDisplay}/>: null}
+       
+       
+      </div>
+     : <div style={{padding: "20px", textAlign:"center"}}>This app is only supported in Google Chrome</div> }
+    </GlobalContext.Provider>
+  );
+
+}
+
+export default App;
+
+/*
+ {isLoaded ? <WikipediaExplorer
+          subscribe={subscribe} 
+          unsubscribe={unsubscribe} 
+          setIntroDisplay={setIntroDisplay}/>: null}
+
+
+
+    { (userAgent.indexOf("Chrome") > -1) ? 
+      <div className="App">
+        <GestureCapturer 
+          publish={publish} 
+          setIsLoaded={setIsLoaded} 
+          introDisplay={introDisplay}
+          setIntroDisplay={setIntroDisplay}
+        />
+        <div className="header" style={{position:"fixed", top:0, left:0,}}>
           <div style={{display:"flex", flexDirection:"row", alignItems:"center",}}>
             <i className="material-icons-outlined" style={{fontSize:"20px", color: "#666"}}>keyboard_arrow_left</i>
             <div className="header-06">Projects</div>
@@ -52,26 +91,18 @@ function App() {
           
           <div style={{flex:1}}></div>
           <div className="title">
-            <div className="header-06">Wikipedia Explorer</div>
+            <div className="header-06">Wikipedia Browser</div>
           </div>
           <div style={{flex:1}}></div>
         </div>
-        {!isLoaded ? <WikipediaExplorer
+        {isLoaded ? <WikipediaExplorer
           subscribe={subscribe} 
           unsubscribe={unsubscribe} 
           setIntroDisplay={setIntroDisplay}/>: null}
-        {/*<Log entries={logEntries}/>*/}
+       
+       
       </div>
      : <div style={{padding: "20px", textAlign:"center"}}>This app is only supported in Google Chrome</div> }
     </GlobalContext.Provider>
   );
-}
-
-export default App;
-
-/*
-<Assistant
-          subscribe={subscribe} 
-          unsubscribe={unsubscribe} 
-          setIntroDisplay={setIntroDisplay}/>
 */

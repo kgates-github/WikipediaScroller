@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useAnimation, motion } from "framer-motion"
+import LinkHighlighter from './LinkHighlighter';
 import Page from './Page';
 import { GlobalContext } from './GlobalContext';
 
@@ -7,8 +8,19 @@ import { GlobalContext } from './GlobalContext';
 function PageViewer(props) {
   const [backButtonDisabled, setBackButtonDisabled] = useState(true);
   const [forwardButtonDisabled, setForwardButtonDisabled] = useState(true);
+  const [isHighlighted, setIsHighlighted] = useState(false);
   const { GLOBAL_WIDTH } = useContext(GlobalContext);
   const pageViewerRef = useRef(null);
+
+  function handleOpenPalm(e) {
+    console.log('handleOpenPalm');
+    setIsHighlighted(true);
+  }
+
+  function handleNoGesture() {
+    console.log('handleNoGesture');
+    setIsHighlighted(false);
+  }
 
   useEffect(() => {
     // Handler to capture keydown events
@@ -38,11 +50,12 @@ function PageViewer(props) {
   useEffect(() => {
     setBackButtonDisabled(props.navigator.getBackButtonDisabled());
     setForwardButtonDisabled(props.navigator.getForwardButtonDisabled());
-
-    if (pageViewerRef.current) {
-      pageViewerRef.current.scrollTop = 0;
-    }
   }, [props.curIndex]);
+
+  useEffect(() => {
+    props.subscribe("Open_Palm", (e) => handleOpenPalm(e));
+    props.subscribe("No_Gesture", handleNoGesture);
+  }, []);
 
   return (
     <>
@@ -68,6 +81,7 @@ function PageViewer(props) {
           overflowX:"visible",
           paddingRight:"20px",
           opacity: 1,
+          filter: isHighlighted ? "grayscale(100%)" : "none",
         }}
       >
         <motion.div 
@@ -94,7 +108,7 @@ function PageViewer(props) {
       position:"fixed",
       pointerEvents: "none", 
     }}>
-      <div style={{ flex:1, background:"white", opacity:"0.7" }}>
+      <div style={{ flex:1, background:"white", opacity:"0.8" }}>
         <div style={{
           background:"#f1f1f1",
           height:"48px",
@@ -133,7 +147,7 @@ function PageViewer(props) {
         </div>
 
       </div>
-      <div style={{ flex:1, background:"white", opacity:"0.7" }}>
+      <div style={{ flex:1, background:"white", opacity:"0.8" }}>
         <div style={{
           background:"#f1f1f1",
           height:"48px",
@@ -141,7 +155,8 @@ function PageViewer(props) {
         }}></div>
       </div>
     </div>
-      
+    
+    <LinkHighlighter navigator={props.navigator} isHighlighted={isHighlighted} />
     </>
   
   );

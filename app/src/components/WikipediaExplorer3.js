@@ -40,26 +40,37 @@ function WikipediaExplorer(props) {
   return (
     <>
       <TabBar toggleTab={toggleTab} tab={tab} />
-      {(tab === 'browse' && navigator) ? (
-        <PageViewer 
-          navigator={navigator} 
-          curIndex={curIndex} 
-          wikiPages={wikiPages}
-          scroll_x={scroll_x}
-          scrollXControls={scrollXControls}
-        />
-      ) : (
-        (tab === 'history' && navigator) ? (
-          <div style={{display:'flex', alignItems:'center', flexDirection:"column", marginTop:"20px"}}>
+      {
+        (navigator) ? (
+          <>
+          <div style={{display: tab == 'browse' ? 'block' : 'none'}}>
+          <PageViewer 
+            navigator={navigator} 
+            curIndex={curIndex} 
+            wikiPages={wikiPages}
+            scroll_x={scroll_x}
+            scrollXControls={scrollXControls}
+            subscribe={props.subscribe}
+            unsubscribe={props.unsubscribe}
+          />
+          </div>
 
+          <div 
+            style={{
+              display:tab == 'history' ? 'flex' : "none", 
+              alignItems:'center', 
+              flexDirection:"column", 
+              marginTop:"20px"
+            }}
+          >
             <div style={{width:"600px", marginBottom:"20px"}}>
               {navigator.getHistory().map((wikiPage, index) => (
                 <div key={"hist_"+index} style={{ marginTop:"16px"}}>{wikiPage.title}</div>
               ))}
             </div>
           </div>
-        ) : null
-      )}
+          </>
+        ) : null }
     </>
   );
 }

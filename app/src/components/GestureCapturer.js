@@ -141,12 +141,12 @@ function GestureCapturer(props) {
   return (
     <>
     
-      <div className="outerContainer" style={{ display: introOneDisplay, position: "absolute", zIndex:10 }}>
+      <div className="outerContainer" style={{ height:"100vh", display: introOneDisplay, position: "absolute", zIndex:10000 }}>
         <div id="innerContainer">
           Loading...
         </div>
       </div>
-      <div className="outerContainer" style={{ display: introTwoDisplay, position: "absolute", zIndex:10 }}>
+      <div className="outerContainer" style={{ height:"100vh", display: introTwoDisplay, position: "absolute", zIndex:10000 }}>
         <div id="innerContainer">
           <div className="annotations"
             style={{

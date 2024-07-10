@@ -63,7 +63,7 @@ class WikipediaNavigator {
     this.queueIndex++;
 
     this.setCurIndex(this.queueIndex) 
-    this.setDoRender(renderNextPage); // MAYBE PASS VALUE TO SET DO RENDER - has new page been added?
+    this.setDoRender(renderNextPage); 
     this.setWikiPages(this.pageQueue);
     
     this.scroll_x.current -= 600;

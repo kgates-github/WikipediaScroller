@@ -63,6 +63,7 @@ function Page(props) {
       
       async function fetchWiki() {
         const newWikiPage = await fetchWikiPage(props.wikiPage.wikiPage);
+        
         setHTMLConent(
           { __html: `
             <div class="title-header">${newWikiPage.title}</div>
@@ -76,11 +77,15 @@ function Page(props) {
     }
   }, [props.doRender, props.wikiPage.wikiPage]);
 
-
+  /*useEffect(() => {
+    console.log('isCurPage', props.wikiPage.isCurPage);
+    if (props.wikiPage.isCurPage) {
+      pageDivRef.current.scrollTop = 0;
+    }  
+  }, [props.wikiPage.isCurPage]);*/
   
-
   return (
-   <motion.div 
+   <div 
     ref={pageDivRef} 
     id={props.wikiPage.id}
     style={{
@@ -88,12 +93,9 @@ function Page(props) {
       width:"600px", 
       paddingRight:"20px",
       paddingLeft:"20px", 
-      //border: "1px solid #ccc",
       height:"calc(100vh - 80px)", 
       overflowY:"scroll", 
       overflowX:"hidden", 
-      background:"none", 
-      //opacity: props.wikiPage.isCurPage ? 1 : 0.3,
       filter: !props.wikiPage.isCurPage ? "grayscale(100%)" : "none",
     }} 
     dangerouslySetInnerHTML={HTMLContent} />
