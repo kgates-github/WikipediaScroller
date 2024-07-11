@@ -7,6 +7,7 @@ import WikipediaExplorer from './components/WikipediaExplorer3';
 function App() {
   const userAgent = navigator.userAgent;
   const [isLoaded, setIsLoaded] = useState(false);
+  const [highlightMode, setHighlightMode] = useState('dormant');
   const [introDisplay, setIntroDisplay] = useState('none');
   const GLOBAL_WIDTH = useRef(600);
 
@@ -27,18 +28,25 @@ function App() {
     document.dispatchEvent(event);
   }
 
+  const changeHighlightMode = () => {
+    let mode = 'dormant' 
+    if (highlightMode === 'dormant') mode = 'highlight';
+    if (highlightMode === 'highlight') mode = 'preview';
+    setHighlightMode(mode);
+  }
+
   return (
     <GlobalContext.Provider value={{GLOBAL_WIDTH}}>
       
     
       { (userAgent.indexOf("Chrome") > -1) ? 
       <div className="App">
-        <GestureCapturer 
+        {/*<GestureCapturer 
           publish={publish} 
           setIsLoaded={setIsLoaded} 
           introDisplay={introDisplay}
           setIntroDisplay={setIntroDisplay}
-        />
+        />*/}
         <div className="header" style={{position:"fixed", top:0, left:0,}}>
           <div style={{display:"flex", flexDirection:"row", alignItems:"center", width:"200px", background:"none"}}>
             <i className="material-icons-outlined" style={{fontSize:"20px", color: "#666"}}>keyboard_arrow_left</i>
@@ -50,11 +58,17 @@ function App() {
             <div className="header-06">Wikipedia Browser</div>
           </div>
           <div style={{flex:1}}></div>
-          <div style={{width:"200px"}}></div>
+          <div style={{width:"200px", display:"flex", justifyContent:"flex-end", marginRight:"30px"}}>
+            <div 
+            className="header-06" 
+            onClick={() => { changeHighlightMode() }}
+            style={{cursor:"pointer", background:""}}>{highlightMode} | Change</div>
+          </div>
         </div>
-        {isLoaded ? <WikipediaExplorer
+        {!isLoaded ? <WikipediaExplorer
           subscribe={subscribe} 
           unsubscribe={unsubscribe} 
+          highlightMode={highlightMode}
           setIntroDisplay={setIntroDisplay}/>: null}
        
        

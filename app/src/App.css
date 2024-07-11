@@ -26,7 +26,6 @@ a:active {
 a.activated {
   color: #000;
   background-color: #e3e3e3;
-  font-size:16px;
   text-decoration: none;
 }
 

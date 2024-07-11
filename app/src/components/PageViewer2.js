@@ -22,6 +22,12 @@ function PageViewer(props) {
     setIsHighlighted(false);
   }
 
+  const getFilters = (highlightMode) => {
+    if (highlightMode == "preview") return "grayscale(100%) blur(5px) opacity(0.5)";
+    if (highlightMode == "highlight") return "grayscale(100%)"; 
+    return "none";
+  }
+
   useEffect(() => {
     // Handler to capture keydown events
     const handleKeyDown = (event) => {
@@ -59,104 +65,108 @@ function PageViewer(props) {
 
   return (
     <>
-    <div style={{
-      display:"flex", 
-      flexDirection:"row", 
-      height:"calc(100vh - 80px)",
-      width:"100%",
-      position:"fixed",
-      pointerEvents: "auto", 
-    }}>
-      <div style={{flex:1, background:"none"}}></div>
-      <div 
-        id="page-viewer"
-        ref={pageViewerRef}
-        style={{
-          marginBottom:"40px", 
-          marginTop:"48px",
-          background:"none",
-          width:"580px",
-          height:"calc(100vh - 80px)",
-          overflowY:"visible",
-          overflowX:"visible",
-          paddingRight:"20px",
-          opacity: 1,
-          filter: isHighlighted ? "grayscale(100%)" : "none",
-        }}
-      >
-        <motion.div 
-          animate={props.scrollXControls}
+      <div style={{
+        display:"flex", 
+        flexDirection:"row", 
+        height:"calc(100vh - 80px)",
+        width:"100%",
+        position:"fixed",
+        pointerEvents: "auto", 
+      }}>
+        <div style={{flex:1, background:"none"}}></div>
+        <div 
+          id="page-viewer"
+          ref={pageViewerRef}
           style={{
-            display:"flex", 
-            flexDirection:"row", 
+            marginBottom:"40px", 
+            marginTop:"48px",
             background:"none",
-            width: props.wikiPages.length * GLOBAL_WIDTH.current 
-          }}>
-            
-          {props.wikiPages.map((wikiPage, index) => (
-            <Page key={"page_"+index} navigator={props.navigator} wikiPage={wikiPage} doRender={wikiPage.doRender}/>
-          ))}
-        </motion.div>
-      </div>
-      <div style={{flex:1, background:"none"}}></div>
-    </div>
-    <div style={{
-      display:"flex", 
-      flexDirection:"row", 
-      height:"calc(100vh - 80px)",
-      width:"100%",
-      position:"fixed",
-      pointerEvents: "none", 
-    }}>
-      <div style={{ flex:1, background:"white", opacity:"0.8" }}>
-        <div style={{
-          background:"#f1f1f1",
-          height:"48px",
-          //borderBottom:"1px solid #ccc",
-        }}></div>
+            width:"580px",
+            height:"calc(100vh - 80px)",
+            overflowY:"visible",
+            overflowX:"visible",
+            paddingRight:"20px",
+            opacity: 1,
+            filter: getFilters(props.highlightMode),
+          }}
+        >
+          <motion.div 
+            animate={props.scrollXControls}
+            style={{
+              display:"flex", 
+              flexDirection:"row", 
+              background:"none",
+              width: props.wikiPages.length * GLOBAL_WIDTH.current 
+            }}>
+              
+            {props.wikiPages.map((wikiPage, index) => (
+              <Page key={"page_"+index} navigator={props.navigator} wikiPage={wikiPage} doRender={wikiPage.doRender}/>
+            ))}
+          </motion.div>
+        </div>
+        <div style={{flex:1, background:"none"}}></div>
       </div>
       <div style={{
-        background:"none", 
-        width:`${GLOBAL_WIDTH.current}px`, 
+        display:"flex", 
+        flexDirection:"row", 
         height:"calc(100vh - 80px)",
-        borderLeft:"1px solid #ccc",
-        borderRight:"1px solid #ccc",
+        width:"100%",
+        position:"fixed",
+        pointerEvents: "none", 
       }}>
-        <div style={{
-          display:"flex", 
-          flexDirection:"row", 
-          background:"#f6f6f6",
-          height:"48px",
-          alignItems:"center",
-          //borderBottom:"1px solid #ccc",
-          paddingLeft:"20px",
-          paddingRight:"20px",
-          pointerEvents: "auto", 
-        }}>
-          <div onClick={() => { props.navigator.moveBack() }} style={{cursor:"pointer",}}>
-            <i className="material-icons" style={{fontSize:"28px", color: backButtonDisabled ? "#ccc" : "#555"}}>arrow_circle_left</i>
-          </div>
-          <div onClick={() => { props.navigator.moveForward() }} style={{cursor:"pointer", marginLeft:"2px"}}>
-            <i className="material-icons" style={{fontSize:"28px", color: forwardButtonDisabled ? "#ccc" : "#555"}}>arrow_circle_right</i>
-          </div>
-          <div style={{flex:1, background:"none"}}></div>
-          <div onClick={() => { }} 
-            style={{cursor:"pointer", display: "flex", alignItems: "center",}}>
-            <i className="material-icons" style={{fontSize:"28px", color:"#666"}}>search</i>
-          </div>
+        <div style={{ flex:1, background:"white", opacity:"0.8" }}>
+          <div style={{
+            background:"#f1f1f1",
+            height:"48px",
+            //borderBottom:"1px solid #ccc",
+          }}></div>
         </div>
-
-      </div>
-      <div style={{ flex:1, background:"white", opacity:"0.8" }}>
         <div style={{
-          background:"#f1f1f1",
-          height:"48px",
-          //borderBottom:"1px solid #ccc",
-        }}></div>
+          background:"none", 
+          width:`${GLOBAL_WIDTH.current}px`, 
+          height:"calc(100vh - 80px)",
+          borderLeft:"1px solid #ccc",
+          borderRight:"1px solid #ccc",
+        }}>
+          <div style={{
+            display:"flex", 
+            flexDirection:"row", 
+            background:"#f6f6f6",
+            height:"48px",
+            alignItems:"center",
+            //borderBottom:"1px solid #ccc",
+            paddingLeft:"20px",
+            paddingRight:"20px",
+            pointerEvents: "auto", 
+          }}>
+            <div onClick={() => { props.navigator.moveBack() }} style={{cursor:"pointer",}}>
+              <i className="material-icons" style={{fontSize:"28px", color: backButtonDisabled ? "#ccc" : "#555"}}>arrow_circle_left</i>
+            </div>
+            <div onClick={() => { props.navigator.moveForward() }} style={{cursor:"pointer", marginLeft:"2px"}}>
+              <i className="material-icons" style={{fontSize:"28px", color: forwardButtonDisabled ? "#ccc" : "#555"}}>arrow_circle_right</i>
+            </div>
+            <div style={{flex:1, background:"none"}}></div>
+            <div onClick={() => { }} 
+              style={{cursor:"pointer", display: "flex", alignItems: "center",}}>
+              <i className="material-icons" style={{fontSize:"28px", color:"#666"}}>search</i>
+            </div>
+          </div>
+
+        </div>
+        <div style={{ flex:1, background:"white", opacity:"0.8" }}>
+          <div style={{
+            background:"#f1f1f1",
+            height:"48px",
+            //borderBottom:"1px solid #ccc",
+          }}></div>
+        </div>
       </div>
-    </div>
-    
-    <LinkHighlighter navigator={props.navigator} isHighlighted={isHighlighted} />
+      
+      <LinkHighlighter 
+        navigator={props.navigator} 
+        highlightMode={props.highlightMode} 
+        curIndex={props.curIndex}
+      />
     </>
   
   );

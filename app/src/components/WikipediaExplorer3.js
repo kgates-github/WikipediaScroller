@@ -3,6 +3,7 @@ import { useAnimation, motion } from "framer-motion"
 import PageViewer from './PageViewer2';
 import WikipediaNavigator from '../utils/WikipediaNavigator';
 import TabBar from './TabBar';
+import { GlobalContext } from './GlobalContext';
 
 
 function WikipediaExplorer(props) {
@@ -10,6 +11,7 @@ function WikipediaExplorer(props) {
   const [navigator, setNavigator] = useState(null);
   const [curIndex, setCurIndex] = useState(null);
   const [wikiPages, setWikiPages] = useState([]);
+  const { GLOBAL_WIDTH } = useContext(GlobalContext);
   
   const scroll_x = useRef(0);
   const scrollXControls = useAnimation();
@@ -19,7 +21,14 @@ function WikipediaExplorer(props) {
   }
 
   useEffect(() => {
-    setNavigator(new WikipediaNavigator(setWikiPages, scroll_x, scrollXControls, setCurIndex));
+    setNavigator(
+      new WikipediaNavigator(
+        setWikiPages, 
+        scroll_x, 
+        scrollXControls, 
+        setCurIndex,
+        GLOBAL_WIDTH
+    ));
   }, []);
 
   useEffect(() => {
@@ -52,6 +61,7 @@ function WikipediaExplorer(props) {
             scrollXControls={scrollXControls}
             subscribe={props.subscribe}
             unsubscribe={props.unsubscribe}
+            highlightMode={props.highlightMode}
           />
           </div>
 

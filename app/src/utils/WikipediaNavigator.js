@@ -1,5 +1,5 @@
 class WikipediaNavigator {
-  constructor(setWikiPages, scroll_x, scrollXControls, setCurIndex) {
+  constructor(setWikiPages, scroll_x, scrollXControls, setCurIndex, GLOBAL_WIDTH) {
     this.pageQueue = [];
     this.queueIndex = 0;
     this.count = 0;
@@ -8,6 +8,7 @@ class WikipediaNavigator {
     this.scrollXControls = scrollXControls;
     this.setCurIndex = setCurIndex;
     this.history = [];
+    this.width = GLOBAL_WIDTH.current
   }
 
   addPageToQueue(wikiPage) {
@@ -66,7 +67,7 @@ class WikipediaNavigator {
     this.setDoRender(renderNextPage); 
     this.setWikiPages(this.pageQueue);
     
-    this.scroll_x.current -= 600;
+    this.scroll_x.current -= this.width;
     this.scrollXControls.start({ 
       x: this.scroll_x.current, 
       transition: { 
@@ -84,7 +85,7 @@ class WikipediaNavigator {
     this.setDoRender();
     this.setWikiPages(this.pageQueue);
 
-    this.scroll_x.current += 600;
+    this.scroll_x.current += this.width;
     this.scrollXControls.start({ 
       x: this.scroll_x.current, 
       transition: { 
