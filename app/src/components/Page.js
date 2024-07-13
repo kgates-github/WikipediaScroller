@@ -8,7 +8,8 @@ function Page(props) {
   const containerRef = useRef(null);
   const pageRef = useRef(null);
 
-  const getFilters = (highlightMode) => {
+  const getFilters = (highlightMode, isCurPage) => {
+    if (highlightMode == "dormant" && !isCurPage) return "grayscale(100%)";
     if (highlightMode == "preview") return "grayscale(100%) opacity(0.3)";
     if (highlightMode == "highlight") return "grayscale(100%)"; 
     return "none";
@@ -85,12 +86,6 @@ function Page(props) {
     }
   }, [props.doRender, props.wikiPage.wikiPage]);
 
-  /*useEffect(() => {
-    console.log('isCurPage', props.wikiPage.isCurPage);
-    if (props.wikiPage.isCurPage) {
-      pageDivRef.current.scrollTop = 0;
-    }  
-  }, [props.wikiPage.isCurPage]);*/
   
   return (
    <div 
@@ -111,7 +106,7 @@ function Page(props) {
         style={{ 
           position:'absolute ', 
           width:"600px", 
-          filter: getFilters(props.highlightMode),  pointerEvents: "auto",}}
+          filter: getFilters(props.highlightMode, props.wikiPage.isCurPage),  pointerEvents: "auto",}}
         dangerouslySetInnerHTML={HTMLContent} 
       />
       {props.wikiPage.isCurPage && (
@@ -128,6 +123,8 @@ function Page(props) {
           <LinkHighlighter 
             navigator={props.navigator} 
             highlightMode={props.highlightMode} 
+            setHighlightedLinks={props.setHighlightedLinks}
+            highlightedLinks={props.highlightedLinks}
             curIndex={props.curIndex}
             containerRef={containerRef}
             pageRef={pageRef}

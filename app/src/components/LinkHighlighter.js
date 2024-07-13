@@ -3,13 +3,14 @@ import HighlightedLink from './HighlightedLink';
 import { motion } from "framer-motion"
 
 function LinkHighlighter(props) {
-  const [highlightedLinks, setHighlightedLinks] = useState([]);
-  const containerRef = props.containerRef;
+  //const [highlightedLinks, setHighlightedLinks] = useState([]);
+  //const containerRef = props.containerRef;
 
 
   const highlightLinks = () => {
     const curPage = props.navigator.getCurPage();
     const links = document.querySelectorAll(`#${curPage.id} a`);
+    
     const visibleLinks = Array.from(links).filter(link => {
       const rect = link.getBoundingClientRect();
       const isVisible = rect.top >= 140 && rect.left >= 0 && 
@@ -23,12 +24,13 @@ function LinkHighlighter(props) {
       link.classList.add('activated');
     });
 
-    setHighlightedLinks(visibleLinks.splice(0, 6).map(link => {
-      const containerRect = containerRef.current.getBoundingClientRect();
+    props.setHighlightedLinks(visibleLinks.splice(0, 6).map(link => {
+      const containerRect = props.containerRef.current.getBoundingClientRect();
       const linkRect = link.getBoundingClientRect();
 
       return {
         link: link.href,
+        wikiPage: link.href.split('/wiki/')[1],
         text: link.innerText,
         left: linkRect.left - containerRect.left - 8,
         top:  linkRect.top - containerRect.top - 6
@@ -37,24 +39,28 @@ function LinkHighlighter(props) {
   }
 
   useEffect(() => {
-    if (props.highlightMode === 'highlight') {
-      highlightLinks();
-      
-      // Cleanup function to remove 'activated' class from all links
-      return () => {
-        const curPage = props.navigator.getCurPage();
-        const links = document.querySelectorAll(`#${curPage.id} a`);
-        links.forEach(link => link.classList.remove('activated'));
-      };
-    } else if (props.highlightMode === 'preview') {
-      console.log('preview');
-    } else if (props.highlightMode === 'dormant') {
-      setHighlightedLinks([])
+    
+    if (props.highlightMode === 'dormant') {
+      props.setHighlightedLinks([])
+      // Clear highlight class from all links
+      const links = document.querySelectorAll(`a.activated`);
+      links.forEach((link, index) => {
+        link.classList.remove('activated');
+      });
+    } else {
+        highlightLinks();
+        
+        // Cleanup function to remove 'activated' class from all links
+        return () => {
+          const curPage = props.navigator.getCurPage();
+          const links = document.querySelectorAll(`#${curPage.id} a`);
+          links.forEach(link => link.classList.remove('activated'));
+        };
     }
   }, [props.highlightMode, props.curIndex]);
 
   useEffect(() => {
-    if (props.highlightMode === 'highlight') {
+    if (props.highlightMode === 'highlight' || props.highlightMode === 'preview') {
       const handleScroll = () => {
         // TO DO: Only highlight links when top link is no visible
         highlightLinks();
@@ -64,7 +70,7 @@ function LinkHighlighter(props) {
       if (page) {
         page.addEventListener("scroll", handleScroll);
       }
-      
+       
       return () => {
         if (page) {
           page.removeEventListener("scroll", handleScroll);
@@ -76,7 +82,7 @@ function LinkHighlighter(props) {
   
   return (
     <div>
-      {highlightedLinks.map((link, index) => (
+      {props.highlightedLinks.map((link, index) => (
         <HighlightedLink 
           key={index} 
           link={link} 

@@ -43,7 +43,7 @@ function WikipediaExplorer(props) {
       }
     });
 
-    navigator.addPageToQueue("Dymaxion_car");
+    navigator.addPageToQueue("Arthur_C._Clarke");
   }, [navigator]);
 
   return (

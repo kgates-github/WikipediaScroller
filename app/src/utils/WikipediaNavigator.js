@@ -23,7 +23,7 @@ class WikipediaNavigator {
       wikiPage: wikiPage,
       prevWikiPage: this.pageQueue[this.queueIndex] ? this.pageQueue[this.queueIndex].wikiPage : null,
       title: wikiPage.replace(/_/g, ' '),
-      id: `${wikiPage}_${this.count}`,
+      id: `wikipage_${this.count}`,
       doRender: true,
       isCurPage: false,
       url: `https://en.wikipedia.org/wiki/${wikiPage}`,

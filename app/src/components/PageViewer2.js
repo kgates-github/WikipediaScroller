@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useAnimation, motion } from "framer-motion"
 import Page from './Page';
+import PreviewCard from './PreviewCard';
 import { GlobalContext } from './GlobalContext';
 
 
@@ -8,6 +9,7 @@ function PageViewer(props) {
   const [backButtonDisabled, setBackButtonDisabled] = useState(true);
   const [forwardButtonDisabled, setForwardButtonDisabled] = useState(true);
   const [isHighlighted, setIsHighlighted] = useState(false);
+  const [highlightedLinks, setHighlightedLinks] = useState([]);
   const { GLOBAL_WIDTH } = useContext(GlobalContext);
   const pageViewerRef = useRef(null);
 
@@ -78,6 +80,7 @@ function PageViewer(props) {
         width:"100%",
         position:"fixed",
         pointerEvents: "auto", 
+        zIndex: '0',
       }}>
         <div style={{flex:1, background:"none", zIndex:"1"}}></div>
         <div 
@@ -111,6 +114,8 @@ function PageViewer(props) {
                 wikiPage={wikiPage} 
                 doRender={wikiPage.doRender}
                 highlightMode={props.highlightMode} 
+                setHighlightedLinks={setHighlightedLinks}
+                highlightedLinks={highlightedLinks}
                 curIndex={props.curIndex}
               />
             ))}
@@ -174,6 +179,36 @@ function PageViewer(props) {
         </div>
       </div>
       
+      <div 
+        style={{
+          position: "fixed", 
+          display: props.highlightMode == 'preview' ? "flex" : "none",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          height:"calc(100vh - 140px)",
+          pointerEvents: "none"  
+        }}
+      >
+        <div 
+          style={{
+            height:"480px",
+            display: "grid",
+            gridTemplateColumns: '1fr 1fr 1fr',
+            gridTemplateRows: 'repeat(6, 1fr)',
+            gap: '12px',  
+  
+          }}
+        >
+          {props.highlightMode == 'preview' ? highlightedLinks.map((highlightedLink, index) => (
+            <PreviewCard 
+              key={"preview_"+index} 
+              highlightedLink={highlightedLink} 
+              highlightMode={props.highlightMode} 
+            />
+          )) : null}
+        </div>
+      </div>
     </>
   
   );
