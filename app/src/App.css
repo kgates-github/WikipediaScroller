@@ -33,8 +33,7 @@ a.highlighted {
   color: #000;
   /*font-weight:900;*/
   background-color: rgb(255, 242, 0);
-  font-size:16px;
-  text-decoration: underline;
+  text-decoration: none;
 }
 a.triggered {
   color: #000;

@@ -43,7 +43,7 @@ function WikipediaExplorer(props) {
       }
     });
 
-    navigator.addPageToQueue("Dymaxion");
+    navigator.addPageToQueue("Dymaxion_car");
   }, [navigator]);
 
   return (
@@ -62,6 +62,7 @@ function WikipediaExplorer(props) {
             subscribe={props.subscribe}
             unsubscribe={props.unsubscribe}
             highlightMode={props.highlightMode}
+            changeHighlightMode={props.changeHighlightMode}
           />
           </div>
 

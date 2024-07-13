@@ -1,10 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react';
+import LinkHighlighter from './LinkHighlighter';
 import { motion } from "framer-motion"
 
 
 function Page(props) {
   const [HTMLContent, setHTMLConent] = useState({ __html: '' });
-  const pageDivRef = useRef(null); 
+  const containerRef = useRef(null);
+  const pageRef = useRef(null);
+
+  const getFilters = (highlightMode) => {
+    if (highlightMode == "preview") return "grayscale(100%) opacity(0.3)";
+    if (highlightMode == "highlight") return "grayscale(100%)"; 
+    return "none";
+  }
 
   const replacementFunction = (match, href) => {
     if (href.includes('wiki')) {
@@ -86,9 +94,10 @@ function Page(props) {
   
   return (
    <div 
-    ref={pageDivRef} 
     id={props.wikiPage.id}
+    ref={pageRef}
     style={{
+      position: 'relative',
       lineHeight:"1.6em",
       width:"600px", 
       paddingRight:"20px",
@@ -96,15 +105,49 @@ function Page(props) {
       height:"calc(100vh - 80px)", 
       overflowY:"scroll", 
       overflowX:"hidden", 
-      filter: !props.wikiPage.isCurPage ? "grayscale(100%)" : "none",
-    }} 
-    dangerouslySetInnerHTML={HTMLContent} />
+      pointerEvents: "auto",
+    }}>  
+      <div 
+        style={{ 
+          position:'absolute ', 
+          width:"600px", 
+          filter: getFilters(props.highlightMode),  pointerEvents: "auto",}}
+        dangerouslySetInnerHTML={HTMLContent} 
+      />
+      {props.wikiPage.isCurPage && (
+        <div 
+          ref={containerRef} 
+          style={{
+            position:'absolute', zIndex:'100000',
+            top:'0', left:'0', 
+            width:'100%', height:'100%',   
+            background:'none',
+            pointerEvents: "none"
+          }}
+        >
+          <LinkHighlighter 
+            navigator={props.navigator} 
+            highlightMode={props.highlightMode} 
+            curIndex={props.curIndex}
+            containerRef={containerRef}
+            pageRef={pageRef}
+          />
+        </div>
+      )}
+    </div>
   );
 }
 
 export default Page;
 
 /*
+ {props.wikiPage.isCurPage && (
+        <LinkHighlighter 
+          navigator={props.navigator} 
+          highlightMode={props.highlightMode} 
+          curIndex={props.curIndex}
+        />
+      )}
 {
     "<p>The <b>Old Swiss Confederacy</b>, also known as <b>Switzerland</b> or the <b>Swiss Confederacy</b>, was a loose confederation of independent small states, initially within the Holy Roman Empire. It is the precursor of the modern state of Switzerland.</p>"
 }*/

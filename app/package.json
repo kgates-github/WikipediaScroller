@@ -23,7 +23,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "homepage": "https://kgates-github.github.io/gestures_IV",
+  "homepage": "https://kgates-github.github.io/wikipedia_browser_I",
   "eslintConfig": {
     "extends": [
       "react-app",

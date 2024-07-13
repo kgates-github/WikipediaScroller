@@ -69,6 +69,7 @@ function App() {
           subscribe={subscribe} 
           unsubscribe={unsubscribe} 
           highlightMode={highlightMode}
+          changeHighlightMode={changeHighlightMode}
           setIntroDisplay={setIntroDisplay}/>: null}
        
        

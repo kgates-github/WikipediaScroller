@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useAnimation, motion } from "framer-motion"
-import LinkHighlighter from './LinkHighlighter';
 import Page from './Page';
 import { GlobalContext } from './GlobalContext';
 
@@ -22,12 +21,6 @@ function PageViewer(props) {
     setIsHighlighted(false);
   }
 
-  const getFilters = (highlightMode) => {
-    if (highlightMode == "preview") return "grayscale(100%) blur(5px) opacity(0.5)";
-    if (highlightMode == "highlight") return "grayscale(100%)"; 
-    return "none";
-  }
-
   useEffect(() => {
     // Handler to capture keydown events
     const handleKeyDown = (event) => {
@@ -41,6 +34,9 @@ function PageViewer(props) {
         if (!forwardButtonDisabled) {
           props.navigator.moveForward();
         }
+      } else if (event.key === ' ' || event.keyCode === 32) {
+        event.preventDefault(); 
+        props.changeHighlightMode();
       }
     };
 
@@ -51,7 +47,7 @@ function PageViewer(props) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [backButtonDisabled, forwardButtonDisabled, props.navigator]);
+  }, [backButtonDisabled, forwardButtonDisabled, props.navigator, props.highlightMode]);
 
   useEffect(() => {
     setBackButtonDisabled(props.navigator.getBackButtonDisabled());
@@ -59,8 +55,18 @@ function PageViewer(props) {
   }, [props.curIndex]);
 
   useEffect(() => {
-    props.subscribe("Open_Palm", (e) => handleOpenPalm(e));
-    props.subscribe("No_Gesture", handleNoGesture);
+    /*if (isHighlighted) {
+      document.addEventListener('open-palm', handleOpenPalm);
+      document.addEventListener('no-gesture', handleNoGesture);
+    } else {
+      document.removeEventListener('open-palm', handleOpenPalm);
+      document.removeEventListener('no-gesture', handleNoGesture);
+    }
+
+    return () => {
+      document.removeEventListener('open-palm', handleOpenPalm);
+      document.removeEventListener('no-gesture', handleNoGesture);
+    }*/
   }, []);
 
   return (
@@ -73,7 +79,7 @@ function PageViewer(props) {
         position:"fixed",
         pointerEvents: "auto", 
       }}>
-        <div style={{flex:1, background:"none"}}></div>
+        <div style={{flex:1, background:"none", zIndex:"1"}}></div>
         <div 
           id="page-viewer"
           ref={pageViewerRef}
@@ -87,7 +93,6 @@ function PageViewer(props) {
             overflowX:"visible",
             paddingRight:"20px",
             opacity: 1,
-            filter: getFilters(props.highlightMode),
           }}
         >
           <motion.div 
@@ -100,7 +105,14 @@ function PageViewer(props) {
             }}>
               
             {props.wikiPages.map((wikiPage, index) => (
-              <Page key={"page_"+index} navigator={props.navigator} wikiPage={wikiPage} doRender={wikiPage.doRender}/>
+              <Page 
+                key={"page_"+index} 
+                navigator={props.navigator} 
+                wikiPage={wikiPage} 
+                doRender={wikiPage.doRender}
+                highlightMode={props.highlightMode} 
+                curIndex={props.curIndex}
+              />
             ))}
           </motion.div>
         </div>
@@ -162,11 +174,6 @@ function PageViewer(props) {
         </div>
       </div>
       
-      <LinkHighlighter 
-        navigator={props.navigator} 
-        highlightMode={props.highlightMode} 
-        curIndex={props.curIndex}
-      />
     </>
   
   );
