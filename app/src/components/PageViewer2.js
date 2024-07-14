@@ -81,20 +81,21 @@ function PageViewer(props) {
         position:"fixed",
         pointerEvents: "auto", 
         zIndex: '0',
+        background: 'none',
       }}>
         <div style={{flex:1, background:"none", zIndex:"1"}}></div>
         <div 
           id="page-viewer"
           ref={pageViewerRef}
           style={{
-            marginBottom:"40px", 
+            marginBottom:"400px", 
             marginTop:"48px",
             background:"none",
-            width:"580px",
+            width:"600px",
             height:"calc(100vh - 80px)",
             overflowY:"visible",
             overflowX:"visible",
-            paddingRight:"20px",
+            //paddingRight:"0px",
             opacity: 1,
           }}
         >
@@ -163,9 +164,14 @@ function PageViewer(props) {
               <i className="material-icons" style={{fontSize:"28px", color: forwardButtonDisabled ? "#ccc" : "#555"}}>arrow_circle_right</i>
             </div>
             <div style={{flex:1, background:"none"}}></div>
-            <div onClick={() => { }} 
+            <div onClick={() => { props.changeHighlightMode() }} 
               style={{cursor:"pointer", display: "flex", alignItems: "center",}}>
-              <i className="material-icons" style={{fontSize:"28px", color:"#666"}}>search</i>
+              <i className="material-icons" style={{
+                fontSize:"40px", 
+                color: props.highlightMode == 'highlight' ? "#D5BF00" : "#666",
+              }}>
+                {props.highlightMode == 'highlight' ? "toggle_on" : "toggle_off"}
+              </i>
             </div>
           </div>
 
@@ -182,31 +188,28 @@ function PageViewer(props) {
       <div 
         style={{
           position: "fixed", 
-          display: props.highlightMode == 'preview' ? "flex" : "none",
-          alignItems: "center",
-          justifyContent: "center",
+          display: props.highlightMode == 'highlight' ? "flex" : "none",
+          flexDirection: "row",
           width: "100%",
-          height:"calc(100vh - 140px)",
-          pointerEvents: "none"  
+          height:"calc(100vh - 80px)",
+          pointerEvents: "none" ,
+          background: "none", 
         }}
       >
-        <div 
-          style={{
-            height:"480px",
-            display: "grid",
-            gridTemplateColumns: '1fr 1fr 1fr',
-            gridTemplateRows: 'repeat(6, 1fr)',
-            gap: '12px',  
-  
-          }}
-        >
-          {props.highlightMode == 'preview' ? highlightedLinks.map((highlightedLink, index) => (
-            <PreviewCard 
-              key={"preview_"+index} 
-              highlightedLink={highlightedLink} 
-              highlightMode={props.highlightMode} 
-            />
-          )) : null}
+        <div style={{ flex:1, }}></div>
+        <div style={{ width:"600px", background:"none"}}></div>
+        <div style={{ flex:1, background:"#fff", borderLeft:"1px solid #ccc"}}>
+          <div style={{ background:"#F9F9F9", height:"48px", }}></div>
+          <div style={{ paddingTop:"8px", paddingLeft:"12px" }}>
+            {props.highlightMode == 'highlight' ? highlightedLinks.map((highlightedLink, index) => (
+              <PreviewCard 
+                key={highlightedLink.id} 
+                index={index}
+                highlightedLink={highlightedLink} 
+                highlightMode={props.highlightMode} 
+              />
+            )) : null}
+          </div>
         </div>
       </div>
     </>

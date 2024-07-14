@@ -99,13 +99,14 @@ function Page(props) {
       paddingLeft:"20px", 
       height:"calc(100vh - 80px)", 
       overflowY:"scroll", 
-      overflowX:"hidden", 
+      //overflowX:"hidden", 
       pointerEvents: "auto",
     }}>  
       <div 
         style={{ 
-          position:'absolute ', 
+          position:'absolute', 
           width:"600px", 
+          //paddingRight:"200px",
           filter: getFilters(props.highlightMode, props.wikiPage.isCurPage),  pointerEvents: "auto",}}
         dangerouslySetInnerHTML={HTMLContent} 
       />

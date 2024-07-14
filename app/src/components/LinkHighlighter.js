@@ -13,18 +13,18 @@ function LinkHighlighter(props) {
     
     const visibleLinks = Array.from(links).filter(link => {
       const rect = link.getBoundingClientRect();
-      const isVisible = rect.top >= 140 && rect.left >= 0 && 
+      const isVisible = rect.top >= 180 && rect.left >= 0 && 
         rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && 
         rect.right <= (window.innerWidth || document.documentElement.clientWidth);
       
       const isToFile = /file/i.test(link.href) && /\.(File|pdf|docx|xlsx|pptx|txt|zip|png|gif|jpg|jpeg)$/i.test(link.href);
       return isVisible && !isToFile;
     });
-    visibleLinks.forEach((link, index) => {
+    /*visibleLinks.forEach((link, index) => {
       link.classList.add('activated');
-    });
+    });*/
 
-    props.setHighlightedLinks(visibleLinks.splice(0, 6).map(link => {
+    props.setHighlightedLinks(visibleLinks.splice(0, 6  ).map(link => {
       const containerRect = props.containerRef.current.getBoundingClientRect();
       const linkRect = link.getBoundingClientRect();
 
@@ -43,19 +43,19 @@ function LinkHighlighter(props) {
     if (props.highlightMode === 'dormant') {
       props.setHighlightedLinks([])
       // Clear highlight class from all links
-      const links = document.querySelectorAll(`a.activated`);
+      /*const links = document.querySelectorAll(`a.activated`);
       links.forEach((link, index) => {
         link.classList.remove('activated');
-      });
+      });*/
     } else {
         highlightLinks();
         
         // Cleanup function to remove 'activated' class from all links
-        return () => {
+        /*return () => {
           const curPage = props.navigator.getCurPage();
           const links = document.querySelectorAll(`#${curPage.id} a`);
           links.forEach(link => link.classList.remove('activated'));
-        };
+        };*/
     }
   }, [props.highlightMode, props.curIndex]);
 

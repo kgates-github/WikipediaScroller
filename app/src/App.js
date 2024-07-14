@@ -31,7 +31,7 @@ function App() {
   const changeHighlightMode = () => {
     let mode = 'dormant' 
     if (highlightMode === 'dormant') mode = 'highlight';
-    if (highlightMode === 'highlight') mode = 'preview';
+    //if (highlightMode === 'highlight') mode = 'preview';
     setHighlightMode(mode);
   }
 

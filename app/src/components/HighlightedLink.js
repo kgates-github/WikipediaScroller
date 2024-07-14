@@ -19,12 +19,13 @@ function HighlightedLink(props) {
       //initial="highlight"
       //variants={variants}
       style={{
-        position: "absolute ",
+        position: "absolute",
         top: props.link.top + "px",
         left: props.link.left + "px",
         display: "inline-block",
         width: "auto",
-        background: props.highlightMode == 'preview' ? "#eee" : "#FFE604",
+        background: props.index == 0 ? "#FFE604" : "#ddd",
+        color: props.index == 0 ? "#000" : "#000",
         paddingLeft: "8px",
         paddingRight: "8px",
         paddingTop: "1px",
