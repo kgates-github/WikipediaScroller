@@ -18,6 +18,7 @@ function HighlightedLink(props) {
       //animate={'highlight'}
       //initial="highlight"
       //variants={variants}
+      onClick={() => props.navigator.handleLinkClick(props.link.href)}
       style={{
         position: "absolute",
         top: props.link.top + "px",

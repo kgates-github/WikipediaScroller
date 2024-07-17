@@ -1,4 +1,15 @@
+.mw-content-ltr {
+  padding-right:40px !important;
+}
 
+
+.mw-parser-output
+
+caption {
+  display: table-caption;
+  text-align: left !important;
+  unicode-bidi: isolate;
+}
 
 a:link {
   color: #0360f7;

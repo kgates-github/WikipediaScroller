@@ -10,8 +10,10 @@ function PageViewer(props) {
   const [forwardButtonDisabled, setForwardButtonDisabled] = useState(true);
   const [isHighlighted, setIsHighlighted] = useState(false);
   const [highlightedLinks, setHighlightedLinks] = useState([]);
+  const [isScrolling, setIsScrolling] = useState(false);  
   const { GLOBAL_WIDTH } = useContext(GlobalContext);
   const pageViewerRef = useRef(null);
+  const pageRef = useRef(null);
 
   function handleOpenPalm(e) {
     console.log('handleOpenPalm');
@@ -35,6 +37,14 @@ function PageViewer(props) {
         // Right arrow key pressed
         if (!forwardButtonDisabled) {
           props.navigator.moveForward();
+        }
+      } else if (event.key === 'ArrowUp') {
+        if (pageRef.current) {
+          pageRef.current.scrollTop -= pageRef.current.offsetHeight;
+        }
+      }else if (event.key === 'ArrowDown') {
+        if (pageRef.current) {
+          pageRef.current.scrollTop += pageRef.current.offsetHeight;
         }
       } else if (event.key === ' ' || event.keyCode === 32) {
         event.preventDefault(); 
@@ -91,11 +101,11 @@ function PageViewer(props) {
             marginBottom:"400px", 
             marginTop:"48px",
             background:"none",
-            width:"600px",
+            width:`${GLOBAL_WIDTH.current}px`,
             height:"calc(100vh - 80px)",
             overflowY:"visible",
             overflowX:"visible",
-            //paddingRight:"0px",
+            background:"none",
             opacity: 1,
           }}
         >
@@ -118,6 +128,8 @@ function PageViewer(props) {
                 setHighlightedLinks={setHighlightedLinks}
                 highlightedLinks={highlightedLinks}
                 curIndex={props.curIndex}
+                setIsScrolling={setIsScrolling}
+                pageRef={pageRef}
               />
             ))}
           </motion.div>
@@ -197,16 +209,18 @@ function PageViewer(props) {
         }}
       >
         <div style={{ flex:1, }}></div>
-        <div style={{ width:"600px", background:"none"}}></div>
+        <div style={{ width:`${GLOBAL_WIDTH.current}px`, background:"none"}}></div>
         <div style={{ flex:1, background:"#fff", borderLeft:"1px solid #ccc"}}>
           <div style={{ background:"#F9F9F9", height:"48px", }}></div>
-          <div style={{ paddingTop:"8px", paddingLeft:"12px" }}>
+          <div style={{ paddingTop:"8px", paddingLeft:"12px", maxWidth:"600px", paddingRight:"12px"}}>
             {props.highlightMode == 'highlight' ? highlightedLinks.map((highlightedLink, index) => (
               <PreviewCard 
                 key={highlightedLink.id} 
+                navigator={props.navigator}
                 index={index}
                 highlightedLink={highlightedLink} 
                 highlightMode={props.highlightMode} 
+                isScrolling={isScrolling}
               />
             )) : null}
           </div>

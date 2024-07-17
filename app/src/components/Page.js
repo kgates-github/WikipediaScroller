@@ -1,12 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import LinkHighlighter from './LinkHighlighter';
+import { GlobalContext } from './GlobalContext';
 import { motion } from "framer-motion"
 
 
 function Page(props) {
   const [HTMLContent, setHTMLConent] = useState({ __html: '' });
+  const { GLOBAL_WIDTH } = useContext(GlobalContext);
   const containerRef = useRef(null);
-  const pageRef = useRef(null);
+  
 
   const getFilters = (highlightMode, isCurPage) => {
     if (highlightMode == "dormant" && !isCurPage) return "grayscale(100%)";
@@ -90,23 +92,25 @@ function Page(props) {
   return (
    <div 
     id={props.wikiPage.id}
-    ref={pageRef}
+    ref={props.pageRef}
     style={{
       position: 'relative',
       lineHeight:"1.6em",
-      width:"600px", 
+      width:`${GLOBAL_WIDTH.current}px`, 
       paddingRight:"20px",
       paddingLeft:"20px", 
       height:"calc(100vh - 80px)", 
       overflowY:"scroll", 
-      //overflowX:"hidden", 
-      pointerEvents: "auto",
+      overflowX:"hidden", 
+      pointerEvents:"auto",
+      background:"none",
     }}>  
       <div 
         style={{ 
           position:'absolute', 
-          width:"600px", 
-          //paddingRight:"200px",
+          width:`${GLOBAL_WIDTH.current}px`,
+          paddingRight:"20px",
+          paddingBottom: `${window.innerHeight}px`,
           filter: getFilters(props.highlightMode, props.wikiPage.isCurPage),  pointerEvents: "auto",}}
         dangerouslySetInnerHTML={HTMLContent} 
       />
@@ -128,7 +132,8 @@ function Page(props) {
             highlightedLinks={props.highlightedLinks}
             curIndex={props.curIndex}
             containerRef={containerRef}
-            pageRef={pageRef}
+            pageRef={props.pageRef}
+            setIsScrolling={props.setIsScrolling}
           />
         </div>
       )}

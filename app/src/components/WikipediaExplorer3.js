@@ -71,10 +71,10 @@ function WikipediaExplorer(props) {
               display:tab == 'history' ? 'flex' : "none", 
               alignItems:'center', 
               flexDirection:"column", 
-              marginTop:"20px"
+              marginTop:"80px"
             }}
           >
-            <div style={{width:"600px", marginBottom:"20px"}}>
+            <div style={{width:"600px", marginBottom:"20px", textAlign:"center"}}>
               {navigator.getHistory().map((wikiPage, index) => (
                 <div key={"hist_"+index} style={{ marginTop:"16px"}}>{wikiPage.title}</div>
               ))}

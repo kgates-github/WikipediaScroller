@@ -7,9 +7,16 @@ function LinkHighlighter(props) {
   //const containerRef = props.containerRef;
 
 
-  const highlightLinks = () => {
+  const highlightLinks = (retryCount = 0) => {
     const curPage = props.navigator.getCurPage();
     const links = document.querySelectorAll(`#${curPage.id} a`);
+
+    if (!links.length && retryCount < 3) { // Check if no links are found and retry count is less than 3
+      setTimeout(() => {
+        highlightLinks(retryCount + 1); 
+      }, 500); 
+      return;
+    }
     
     const visibleLinks = Array.from(links).filter(link => {
       const rect = link.getBoundingClientRect();
@@ -17,13 +24,10 @@ function LinkHighlighter(props) {
         rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && 
         rect.right <= (window.innerWidth || document.documentElement.clientWidth);
       
-      const isToFile = /file/i.test(link.href) && /\.(File|pdf|docx|xlsx|pptx|txt|zip|png|gif|jpg|jpeg)$/i.test(link.href);
-      return isVisible && !isToFile;
+        const isNotImageOrSVG = !/\.(svg|png|gif|jpeg|jpg)$/i.test(link.href) && 
+          !/(Special|Help|Wikipedia):/i.test(link.href) && !/google\.com/i.test(link.href);
+      return isVisible && isNotImageOrSVG;
     });
-    /*visibleLinks.forEach((link, index) => {
-      link.classList.add('activated');
-    });*/
-
     props.setHighlightedLinks(visibleLinks.splice(0, 6  ).map(link => {
       const containerRect = props.containerRef.current.getBoundingClientRect();
       const linkRect = link.getBoundingClientRect();
@@ -39,33 +43,32 @@ function LinkHighlighter(props) {
   }
 
   useEffect(() => {
-    
+    console.log('------- props.highlightMode, props.curIndex', props.highlightMode, props.curIndex)
     if (props.highlightMode === 'dormant') {
       props.setHighlightedLinks([])
-      // Clear highlight class from all links
-      /*const links = document.querySelectorAll(`a.activated`);
-      links.forEach((link, index) => {
-        link.classList.remove('activated');
-      });*/
+      
     } else {
         highlightLinks();
-        
-        // Cleanup function to remove 'activated' class from all links
-        /*return () => {
-          const curPage = props.navigator.getCurPage();
-          const links = document.querySelectorAll(`#${curPage.id} a`);
-          links.forEach(link => link.classList.remove('activated'));
-        };*/
     }
   }, [props.highlightMode, props.curIndex]);
 
   useEffect(() => {
     if (props.highlightMode === 'highlight' || props.highlightMode === 'preview') {
+      let scrollTimeout = null; 
+      
       const handleScroll = () => {
-        // TO DO: Only highlight links when top link is no visible
+        props.setIsScrolling(true);
         highlightLinks();
+  
+        // Clear any existing timeout to reset the timer
+        clearTimeout(scrollTimeout);
+  
+        // Set a new timeout
+        scrollTimeout = setTimeout(() => {
+          props.setIsScrolling(false); 
+        }, 150); // 150ms delay to determine end of scrolling, adjust as needed
       };
-
+  
       const page = props.pageRef.current;
       if (page) {
         page.addEventListener("scroll", handleScroll);
@@ -87,6 +90,7 @@ function LinkHighlighter(props) {
           key={index} 
           link={link} 
           highlightMode={props.highlightMode} 
+          navigator={props.navigator}
           index={index}
           containerRef={props.containerRef}
         />
