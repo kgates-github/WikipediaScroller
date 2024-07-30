@@ -1,12 +1,9 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useMemo} from 'react';
 import HighlightedLink from './HighlightedLink';
 import { motion } from "framer-motion"
 
 function LinkHighlighter(props) {
-  //const [highlightedLinks, setHighlightedLinks] = useState([]);
-  //const containerRef = props.containerRef;
-
-
+  
   const highlightLinks = (retryCount = 0) => {
     const curPage = props.navigator.getCurPage();
     const links = document.querySelectorAll(`#${curPage.id} a`);
@@ -19,7 +16,9 @@ function LinkHighlighter(props) {
     }
     
     const visibleLinks = Array.from(links).filter(link => {
-      const rect = link.getBoundingClientRect();
+      if (!link) return false; // If we can't get the bounding rect, return false
+
+      const rect = link.getBoundingClientRect() ? link.getBoundingClientRect() : {top: 0, left: 0, bottom: 0, right: 0};
       const isVisible = rect.top >= 180 && rect.left >= 0 && 
         rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && 
         rect.right <= (window.innerWidth || document.documentElement.clientWidth);
@@ -28,12 +27,16 @@ function LinkHighlighter(props) {
           !/(Special|Help|Wikipedia):/i.test(link.href) && !/google\.com/i.test(link.href);
       return isVisible && isNotImageOrSVG;
     });
-    props.setHighlightedLinks(visibleLinks.splice(0, 6  ).map(link => {
-      const containerRect = props.containerRef.current.getBoundingClientRect();
+
+    if (!props.containerRef.current) return false;
+    const containerRect = props.containerRef.current.getBoundingClientRect();
+
+    props.setHighlightedLinks(visibleLinks.splice(0, 6).map((link, index) => {
       const linkRect = link.getBoundingClientRect();
 
       return {
         link: link.href,
+        id: 'highlighted-link-' + index,
         wikiPage: link.href.split('/wiki/')[1],
         text: link.innerText,
         left: linkRect.left - containerRect.left - 8,
@@ -42,45 +45,42 @@ function LinkHighlighter(props) {
     }));
   }
 
-  useEffect(() => {
-    console.log('------- props.highlightMode, props.curIndex', props.highlightMode, props.curIndex)
+  /*useMemo(() => {
     if (props.highlightMode === 'dormant') {
-      props.setHighlightedLinks([])
-      
+      props.setHighlightedLinks([]);
     } else {
         highlightLinks();
     }
-  }, [props.highlightMode, props.curIndex]);
+  }, [props.curIndex, props.highlightMode]);*/
 
   useEffect(() => {
-    if (props.highlightMode === 'highlight' || props.highlightMode === 'preview') {
+    if (props.highlightMode === 'highlight' && props.toggleStateRight === 'preview') {
+      highlightLinks();
+      const page = props.pageRef.current;
       let scrollTimeout = null; 
-      
+        
       const handleScroll = () => {
         props.setIsScrolling(true);
         highlightLinks();
-  
-        // Clear any existing timeout to reset the timer
         clearTimeout(scrollTimeout);
-  
+
         // Set a new timeout
         scrollTimeout = setTimeout(() => {
           props.setIsScrolling(false); 
-        }, 150); // 150ms delay to determine end of scrolling, adjust as needed
+        }, 150);
       };
-  
-      const page = props.pageRef.current;
-      if (page) {
-        page.addEventListener("scroll", handleScroll);
-      }
-       
+
+      if (page) page.addEventListener("scroll", handleScroll);
+      
       return () => {
         if (page) {
           page.removeEventListener("scroll", handleScroll);
         }
       };
+    } else {
+      props.setHighlightedLinks([]);
     }
-  }, [props.pageRef, props.highlightMode]); 
+  }, [props.highlightMode, props.pageRef, props.curIndex]); 
 
   
   return (

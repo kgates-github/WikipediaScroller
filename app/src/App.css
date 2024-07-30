@@ -1,9 +1,16 @@
+
+/* WIKIPEDIA CSS OVERRIDES */
 .mw-content-ltr {
   padding-right:40px !important;
 }
 
+/* D3 CSS */
+.edge {
+  stroke: #ccc;
+  stroke-width: 1px;
+}
 
-.mw-parser-output
+
 
 caption {
   display: table-caption;
@@ -71,7 +78,7 @@ a.triggered {
   background-color: none; 
   font: 12px 'Source Sans Pro'; 
   flex:1; display: flex; 
-  flex-direction: column; 
+  flex-direction: row; 
   justify-content: center; 
   align-items: center;
 }

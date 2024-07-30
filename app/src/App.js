@@ -1,14 +1,18 @@
 import './App.css';
 import GestureCapturer from './components/GestureCapturer';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { GlobalContext } from './components/GlobalContext';
 import WikipediaExplorer from './components/WikipediaExplorer3';
+import HelpPage from './components/HelpPage';
+import OpenAITests from './components/OpenAITests';
+import { OpenAI } from 'openai';
 
 function App() {
   const userAgent = navigator.userAgent;
   const [isLoaded, setIsLoaded] = useState(false);
-  const [highlightMode, setHighlightMode] = useState('dormant');
+  const [highlightMode, setHighlightMode] = useState('dormant'); // dormant, highlight
   const [introDisplay, setIntroDisplay] = useState('none');
+  const [openAI, setOpenAI] = useState(null);
   const GLOBAL_WIDTH = useRef(640);
 
   // Set up our custom gesture events
@@ -35,6 +39,16 @@ function App() {
     setHighlightMode(mode);
   }
 
+  useEffect(() => {
+    const openaiApiKey = process.env.REACT_APP_OPENAI_KEY
+
+    if (!openaiApiKey) {
+      console.log('process.env.REACT_APP_OPENAI_KEY not found')
+    } else {
+      setOpenAI(new OpenAI({ apiKey: openaiApiKey, dangerouslyAllowBrowser: true }));
+    }
+  }, []);
+
   return (
     <GlobalContext.Provider value={{GLOBAL_WIDTH}}>
       
@@ -55,7 +69,13 @@ function App() {
           
           <div style={{flex:1}}></div>
           <div className="title">
-            <div className="header-06">Wikipedia Browser</div>
+            <div style={{width:"40px",}}></div>
+            <div className="header-06">
+              Wikipedia Browser
+            </div>
+            <div style={{paddingTop:"4px", marginLeft:"12px",}}>
+              <i className="material-icons-outlined" style={{fontSize:"24px", color: "#666"}}>search</i>
+            </div>
           </div>
           <div style={{flex:1}}></div>
           <div style={{width:"200px", display:"flex", justifyContent:"flex-end", marginRight:"30px"}}>
@@ -63,7 +83,7 @@ function App() {
             className="header-06" 
             onClick={() => { setIntroDisplay(introDisplay == 'none' ? 'flex' : 'none') }}
             style={{cursor:"pointer", background:""}}>
-              <i className="material-icons-outlined" style={{fontSize:"28px",  color: "#555"}}>info</i>
+              <i className="material-icons-outlined" style={{fontSize:"24px",  color: "#666"}}>info</i>
             </div>
           </div>
         </div>
@@ -72,38 +92,17 @@ function App() {
           unsubscribe={unsubscribe} 
           highlightMode={highlightMode}
           changeHighlightMode={changeHighlightMode}
-          setIntroDisplay={setIntroDisplay}/>: null}
+          setIntroDisplay={setIntroDisplay}
+          openAI={openAI}/> : null}
 
-        <div 
-          onClick={() => { setIntroDisplay(introDisplay == 'none' ? 'flex' : 'none') }}
-          style={{
-            display: introDisplay, 
-            position:"fixed", 
-            top:0, left:0, width:"100%", height:"100%", background:"rgba(0,0,0,0.8)", zIndex:1000
-          }}
-        >
-          <div style={{
-            position:"absolute", 
-            top:"50%", left:"50%", 
-            transform:"translate(-50%, -50%)",
-            color:"#fff",
-          }}>
-            <div style={{fontSize:"14px", marginBottom:"20px", textAlign:"center"}}>Press spacebar to toggle to preview mode</div>
-            <div style={{marginBottom:"40px", display:"flex", justifyContent:"center"}}>
-              <img src={`${process.env.PUBLIC_URL}/spacebar.png`} alt="Description" />
-            </div>
-            <div style={{fontSize:"14px", marginBottom:"20px", textAlign:"center"}}>Press left or right arrows to go forward or back</div>
-            <div style={{marginBottom:"40px", display:"flex", justifyContent:"center"}}>
-              <img src={`${process.env.PUBLIC_URL}/left_right_arrows.png`} alt="Description" />
-            </div>
-            <div style={{fontSize:"14px", marginBottom:"20px", textAlign:"center"}}>Press left or right arrows to go forward or back</div>
-            <div style={{marginBottom:"80px", display:"flex", justifyContent:"center"}}>
-              <img src={`${process.env.PUBLIC_URL}/up_down_arrows.png`} alt="Description" />
-            </div>
-            <div style={{fontSize:"14px", textAlign:"center", textDecoration:"underline", cursor:"pointer"}}>Close</div>
-          </div>
-        </div>
-       
+        <HelpPage 
+          setIntroDisplay={setIntroDisplay}
+          introDisplay={introDisplay}
+        />
+
+        {false ? <OpenAITests 
+          openAI={openAI}
+          /> : null}
        
       </div>
      : <div style={{padding: "20px", textAlign:"center"}}>This app is only supported in Google Chrome</div> }

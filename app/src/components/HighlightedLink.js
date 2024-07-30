@@ -5,19 +5,9 @@ import { motion } from "framer-motion"
 function HighlightedLink(props) {
   const componentWidth = 300;
   const componentHeight = 200;
-  //const containerRef = props.containerRef;
-
-  
-  useEffect(() => { 
-    console.log('props.highlightMode', props.highlightMode);
-  }, [props.highlightMode]);
-  
   
   return (
     <motion.div 
-      //animate={'highlight'}
-      //initial="highlight"
-      //variants={variants}
       onClick={() => props.navigator.handleLinkClick(props.link.href)}
       style={{
         position: "absolute",

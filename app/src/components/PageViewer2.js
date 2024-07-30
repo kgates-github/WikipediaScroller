@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
+import React, { useEffect, useState, useContext, useRef, useMemo } from 'react';
 import { useAnimation, motion } from "framer-motion"
 import Page from './Page';
-import PreviewCard from './PreviewCard';
+import LinkPreviews from './LinkPreviews';
+import Suggestions from './Suggestions';
 import { GlobalContext } from './GlobalContext';
 
 
@@ -13,7 +14,7 @@ function PageViewer(props) {
   const [isScrolling, setIsScrolling] = useState(false);  
   const { GLOBAL_WIDTH } = useContext(GlobalContext);
   const pageViewerRef = useRef(null);
-  const pageRef = useRef(null);
+  const [toggleStateRight, setToggleStateRight] = useState(props.openAI ? 'suggestions' : 'preview')
 
   function handleOpenPalm(e) {
     console.log('handleOpenPalm');
@@ -38,15 +39,15 @@ function PageViewer(props) {
         if (!forwardButtonDisabled) {
           props.navigator.moveForward();
         }
-      } else if (event.key === 'ArrowUp') {
+      } /*else if (event.key === 'ArrowUp') {
         if (pageRef.current) {
           pageRef.current.scrollTop -= pageRef.current.offsetHeight;
         }
-      }else if (event.key === 'ArrowDown') {
+      } else if (event.key === 'ArrowDown') {
         if (pageRef.current) {
           pageRef.current.scrollTop += pageRef.current.offsetHeight;
         }
-      } else if (event.key === ' ' || event.keyCode === 32) {
+      }*/ else if (event.key === ' ' || event.keyCode === 32) {
         event.preventDefault(); 
         props.changeHighlightMode();
       }
@@ -61,10 +62,10 @@ function PageViewer(props) {
     };
   }, [backButtonDisabled, forwardButtonDisabled, props.navigator, props.highlightMode]);
 
-  useEffect(() => {
+  useMemo(() => {
     setBackButtonDisabled(props.navigator.getBackButtonDisabled());
     setForwardButtonDisabled(props.navigator.getForwardButtonDisabled());
-  }, [props.curIndex]);
+  }, [props.curIndex, props.pageQueueLength]);
 
   useEffect(() => {
     /*if (isHighlighted) {
@@ -127,9 +128,9 @@ function PageViewer(props) {
                 highlightMode={props.highlightMode} 
                 setHighlightedLinks={setHighlightedLinks}
                 highlightedLinks={highlightedLinks}
+                toggleStateRight={toggleStateRight}
                 curIndex={props.curIndex}
                 setIsScrolling={setIsScrolling}
-                pageRef={pageRef}
               />
             ))}
           </motion.div>
@@ -169,14 +170,14 @@ function PageViewer(props) {
             paddingRight:"20px",
             pointerEvents: "auto", 
           }}>
-            <div onClick={() => { props.navigator.moveBack() }} style={{cursor:"pointer",}}>
+            <div id="arrowleft" onClick={() => { props.navigator.moveBack() }} style={{cursor:"pointer",}}>
               <i className="material-icons" style={{fontSize:"28px", color: backButtonDisabled ? "#ccc" : "#555"}}>arrow_circle_left</i>
             </div>
             <div onClick={() => { props.navigator.moveForward() }} style={{cursor:"pointer", marginLeft:"2px"}}>
               <i className="material-icons" style={{fontSize:"28px", color: forwardButtonDisabled ? "#ccc" : "#555"}}>arrow_circle_right</i>
             </div>
             <div style={{flex:1, background:"none"}}></div>
-            <div onClick={() => { props.changeHighlightMode() }} 
+            <div id="toggle" onClick={() => { props.changeHighlightMode() }} 
               style={{cursor:"pointer", display: "flex", alignItems: "center",}}>
               <i className="material-icons" style={{
                 fontSize:"40px", 
@@ -211,19 +212,98 @@ function PageViewer(props) {
         <div style={{ flex:1, }}></div>
         <div style={{ width:`${GLOBAL_WIDTH.current}px`, background:"none"}}></div>
         <div style={{ flex:1, background:"#fff", borderLeft:"1px solid #ccc"}}>
-          <div style={{ background:"#F9F9F9", height:"48px", }}></div>
-          <div style={{ paddingTop:"8px", paddingLeft:"12px", maxWidth:"600px", paddingRight:"12px"}}>
-            {props.highlightMode == 'highlight' ? highlightedLinks.map((highlightedLink, index) => (
-              <PreviewCard 
-                key={highlightedLink.id} 
-                navigator={props.navigator}
-                index={index}
-                highlightedLink={highlightedLink} 
-                highlightMode={props.highlightMode} 
-                isScrolling={isScrolling}
-              />
-            )) : null}
+          <div style={{ background:"#F9F9F9", height:"48px", }}>
+
+            {/* Toggle Control */}
+            {props.openAI ? (
+            <div style={{ 
+              display: 'flex', 
+              alignItems: "center", 
+              paddingLeft: "12px", 
+              paddingRight: "12px", 
+              height: "100%",
+              background: "none",
+              maxWidth: "400px",
+            }}>
+              <button
+                onClick={() => setToggleStateRight(toggleStateRight == 'suggestions' ? 'preview' : 'suggestions')}
+                style={{
+                  flex:"1",
+                  padding: '6px 20px',
+                  backgroundColor: toggleStateRight === 'suggestions' ? '#555' : '#f1f1f1',
+                  color: toggleStateRight === 'suggestions' ? '#fff' : '#000',
+                  fontWeight: toggleStateRight === 'preview' ? '600' : '400',
+                  borderTopLeftRadius:"4px",
+                  borderBottomLeftRadius:"4px",
+                  cursor: 'pointer',
+                  textTransform: "uppercase",
+                  height:"28px",
+                  border:"1px solid #999",
+                  fontSize: "10px",
+                  pointerEvents: "auto",
+                }}
+              >
+                Suggestions
+              </button>
+              <button
+                onClick={() => setToggleStateRight(toggleStateRight == 'suggestions' ? 'preview' : 'suggestions')}
+                style={{
+                  flex:"1",
+                  padding: '6px 20px',
+                  backgroundColor: toggleStateRight === 'preview' ? '#555' : '#f1f1f1',
+                  color: toggleStateRight === 'preview' ? '#fff' : '#000',
+                  fontWeight: toggleStateRight === 'preview' ? '600' : '400',
+                  borderTopRightRadius:"4px",
+                  borderBottomRightRadius:"4px",
+                  cursor: 'pointer',
+                  textTransform: "uppercase",
+                  height:"28px",
+                  borderTop:"1px solid #999",
+                  borderRight:"1px solid #999",
+                  borderLeft:"0px solid #555",
+                  borderBottom:"1px solid #999",
+                  fontSize: "10px",
+                  pointerEvents: "auto",
+                }}
+              >
+                Link Previews
+              </button>
+            </div>) : 
+              <div style={{ 
+                display: 'flex', 
+                alignItems: "center", 
+                paddingLeft: "12px", 
+                height: "100%",
+                fontSize: "10px",
+                fontWeight: "600",
+                color: "#666",
+                textTransform: "uppercase",
+              }}>Link Previews</div>
+            }
           </div>
+          
+          <div style={{
+            display: (props.openAI && toggleStateRight == 'suggestions') ? "block" : "none",
+          }}>
+            <Suggestions 
+              highlightMode={props.highlightMode}
+              highlightedLinks={highlightedLinks}
+              navigator={props.navigator}
+              curIndex={props.curIndex}
+            /> 
+          </div>
+          <div style={{
+            display: ((props.openAI && toggleStateRight == 'preview')) || !props.openAI ? "block" : "none",
+          }}>
+            <LinkPreviews 
+              highlightMode={props.highlightMode}
+              highlightedLinks={highlightedLinks}
+              navigator={props.navigator}
+              isScrolling={isScrolling}
+            /> 
+          </div>
+
+
         </div>
       </div>
     </>

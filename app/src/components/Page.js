@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useContext } from 'react';
+import React, { useEffect, useState, useRef, useContext, } from 'react';
 import LinkHighlighter from './LinkHighlighter';
 import { GlobalContext } from './GlobalContext';
 import { motion } from "framer-motion"
@@ -8,6 +8,7 @@ function Page(props) {
   const [HTMLContent, setHTMLConent] = useState({ __html: '' });
   const { GLOBAL_WIDTH } = useContext(GlobalContext);
   const containerRef = useRef(null);
+  const pageRef = useRef(null);
   
 
   const getFilters = (highlightMode, isCurPage) => {
@@ -41,8 +42,11 @@ function Page(props) {
     try {
       const pattern = /<a\s+[^>]*href=["'][^"']*?([^"']*wiki[^"']*|[^"'>]*)["'][^>]*>(.*?)<\/a>/gi;
     
+      // https://en.wikipedia.org/w/api.php?action=query&format=json&titles=OpenAI&prop=info&inprop=url&origin=*
+      // https://en.wikipedia.org/w/api.php?action=query&format=json&pageids=12345678&prop=revisions&rvprop=content&origin=*
+
       const response = await fetch(
-        `https://en.wikipedia.org/w/api.php?action=parse&page=${wikiPage}&format=json&origin=*`
+        `https://en.wikipedia.org/w/api.php?action=parse&page=${wikiPage.wikiPage}&format=json&origin=*`
       );
 
       if (!response.ok) throw new Error(`Error fetching data: ${response.statusText}`);
@@ -50,10 +54,18 @@ function Page(props) {
       const data = await response.json();
       let truncatedText = data.parse.text["*"].split("References")[0];
       const title = data.parse.title;
+
+      if (!wikiPage.wordCount) {
+        wikiPage.wordCount = truncatedText.split(/\s+/).length;
+        wikiPage.title = title;
+        props.navigator.updateHistory(wikiPage);
+      }
       
       // Apply the replacement function to the truncatedText
       let cleanedText = truncatedText.replace(pattern, replacementFunction);
       cleanedText = cleanedText.replace(/\[|\]/g, '');
+
+      // Once we have text, update wordCount
 
       return {
         title: title,
@@ -73,14 +85,25 @@ function Page(props) {
       props.wikiPage.prevWikiPage != props.wikiPage.wikiPage)) {
       
       async function fetchWiki() {
-        const newWikiPage = await fetchWikiPage(props.wikiPage.wikiPage);
+        const newWikiPage = await fetchWikiPage(props.wikiPage);
         
-        setHTMLConent(
-          { __html: `
-            <div class="title-header">${newWikiPage.title}</div>
-            ${newWikiPage.text}`  
-          }
-        );
+        try {
+          setHTMLConent(
+            { __html: `
+              <div class="title-header">${newWikiPage.title}</div>
+              ${newWikiPage.text}`  
+            }
+          );
+        } catch (error) {
+          console.log('Error setting HTMLContent: ', error.message);
+          setHTMLConent(
+            { __html: `
+              <div class="title-header">Error</div>
+              There was an error loading the page: ${props.wikiPage.wikiPage}. <br/>You may need to check you internet connection`  
+            }
+          );
+        }
+        
       }
       fetchWiki();
     } else {
@@ -92,7 +115,7 @@ function Page(props) {
   return (
    <div 
     id={props.wikiPage.id}
-    ref={props.pageRef}
+    ref={pageRef}
     style={{
       position: 'relative',
       lineHeight:"1.6em",
@@ -114,7 +137,7 @@ function Page(props) {
           filter: getFilters(props.highlightMode, props.wikiPage.isCurPage),  pointerEvents: "auto",}}
         dangerouslySetInnerHTML={HTMLContent} 
       />
-      {props.wikiPage.isCurPage && (
+      {props.wikiPage.isCurPage && props.toggleStateRight == "preview" && (
         <div 
           ref={containerRef} 
           style={{
@@ -126,13 +149,14 @@ function Page(props) {
           }}
         >
           <LinkHighlighter 
-            navigator={props.navigator} 
+            navigator={props.navigator}
             highlightMode={props.highlightMode} 
             setHighlightedLinks={props.setHighlightedLinks}
             highlightedLinks={props.highlightedLinks}
+            toggleStateRight={props.toggleStateRight}
             curIndex={props.curIndex}
             containerRef={containerRef}
-            pageRef={props.pageRef}
+            pageRef={pageRef}
             setIsScrolling={props.setIsScrolling}
           />
         </div>

@@ -1,5 +1,8 @@
 class WikipediaNavigator {
-  constructor(setWikiPages, scroll_x, scrollXControls, setCurIndex, GLOBAL_WIDTH) {
+  constructor(
+    setWikiPages, scroll_x, scrollXControls, 
+    setCurIndex, GLOBAL_WIDTH, setPageQueueLength) {
+    
     this.pageQueue = [];
     this.queueIndex = 0;
     this.count = 0;
@@ -9,9 +12,10 @@ class WikipediaNavigator {
     this.setCurIndex = setCurIndex;
     this.history = [];
     this.width = GLOBAL_WIDTH.current
+    this.setPageQueueLength = setPageQueueLength;
   }
 
-  addPageToQueue(wikiPage) {
+  addPageToQueue(wikiPage, moveForward = true) {
     this.count++;
 
     // If we are trying to add a page to the queue that is not the last page in the queue
@@ -29,10 +33,10 @@ class WikipediaNavigator {
       url: `https://en.wikipedia.org/wiki/${wikiPage}`,
       api: `https://en.wikipedia.org/w/api.php?action=parse&page=${wikiPage}&prop=text&format=json`,
       summary: 'This is a summary',
+      wordCount: null, // Placeholder until we load content
     }
 
     this.pageQueue.push(newPage);
-    this.history.push(newPage);
 
     // If we only have one page, render it
     if (this.pageQueue.length === 1) {
@@ -41,10 +45,28 @@ class WikipediaNavigator {
 
       // Set the current index to trigger renders
       this.setCurIndex(this.queueIndex) 
-    }
+    }  
 
+    this.history.push({ 
+      nodeId: newPage.id, 
+      parentId: this.pageQueue.length === 1 ? null : this.pageQueue[this.queueIndex].id, 
+      linkPosition: 50, 
+      name: newPage.title,
+      wordCount: 100, // Placeholder until we load content
+    });
+    
+    this.setPageQueueLength(this.pageQueue.length);
     this.setWikiPages(this.pageQueue);
-    this.moveForward(false);
+    if (moveForward) this.moveForward(false);
+  }
+
+  updateHistory(wikiPage) {
+    // Find the history object with the matching ID
+    const historyWikiPage = this.history.find(item => item.nodeId === wikiPage.id);
+    if (historyWikiPage) {
+      historyWikiPage.wordCount = wikiPage.wordCount; 
+      historyWikiPage.title = wikiPage.title;
+    }
   }
 
   setDoRender(renderNextPage = true) {
@@ -60,6 +82,7 @@ class WikipediaNavigator {
   }
 
   moveForward(renderNextPage = true) { 
+    console.log('moveForward', this.queueIndex, this.pageQueue.length - 1);
     if (this.queueIndex === this.pageQueue.length - 1) return;
     this.queueIndex++;
 

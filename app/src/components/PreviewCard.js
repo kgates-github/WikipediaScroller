@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { motion } from "framer-motion"
 
 
 function PreviewCard(props) {
   const [HTMLContent, setHTMLContent] = useState({ __html : '' });
-  const [titleWidth, setTitleWidth] = useState(Math.floor(Math.random() * 100) + 100);
+  const [titleWidth, setTitleWidth] = useState(Math.floor(Math.random() * 200) + 100);
  
 
   const fetchWikiSummary = async(wikiPage) => {
@@ -20,7 +20,7 @@ function PreviewCard(props) {
     }
   }
 
-  useEffect(() => {
+  useMemo(() => {
     if (props.highlightedLink.wikiPage && !props.isScrolling) {
       setHTMLContent({ __html: '' });
 
